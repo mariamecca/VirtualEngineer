@@ -12,18 +12,14 @@ export default function Project() {
   const [optimizations, setOptimizations] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [tab, setTab] = useState('overview')
-  const [editing, setEditing] = useState(false)
   const [editForm, setEditForm] = useState({})
   const [savingEdit, setSavingEdit] = useState(false)
-  const [progressValue, setProgressValue] = useState(0)
-  const [savingProgress, setSavingProgress] = useState(false)
 
   useEffect(() => {
     Promise.all([
       projectsAPI.getById(id).then(r => {
         setProject(r.data)
         setEditForm(r.data)
-        setProgressValue(r.data.progress || 0)
       }),
       filesAPI.getByProject(id).then(r => setFiles(r.data)),
       aiAPI.loadOptimizations(id).then(r => { if (r.data) setOptimizations(r.data) }).catch(() => {})
@@ -71,16 +67,6 @@ export default function Project() {
     finally { setSavingEdit(false) }
   }
 
-  const saveProgress = async () => {
-    setSavingProgress(true)
-    try {
-      const res = await projectsAPI.update(id, { progress: progressValue })
-      setProject(prev => ({ ...prev, progress: res.data.progress }))
-      toast.success('Avanzamento aggiornato')
-    } catch { toast.error('Errore nel salvataggio') }
-    finally { setSavingProgress(false) }
-  }
-
   if (!project) return <div className="p-8 text-gray-400">Caricamento...</div>
 
   const tabs = ['overview', 'modifica', 'files', 'ottimizzazioni']
@@ -122,30 +108,15 @@ export default function Project() {
 
       {tab === 'overview' && (
         <div className="space-y-6">
-          {/* Avanzamento aggiornabile */}
           <div className="card">
-            <h3 className="font-semibold text-white mb-4">Avanzamento lavori</h3>
-            <div className="h-2 bg-gray-800 rounded-full mb-4">
-              <div className="h-full bg-blue-600 rounded-full transition-all" style={{ width: `${progressValue}%` }} />
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-white">Avanzamento lavori</h3>
+              <span className="text-green-400 font-bold text-lg">{project.progress || 0}%</span>
             </div>
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={progressValue}
-                onChange={e => setProgressValue(Number(e.target.value))}
-                className="flex-1 accent-blue-600"
-              />
-              <span className="text-white font-bold w-12 text-right">{progressValue}%</span>
-              <button
-                onClick={saveProgress}
-                disabled={savingProgress || progressValue === project.progress}
-                className="btn-primary text-sm py-1.5 px-3"
-              >
-                {savingProgress ? '...' : 'Salva'}
-              </button>
+            <div className="h-2 bg-gray-800 rounded-full">
+              <div className="h-full bg-blue-600 rounded-full transition-all" style={{ width: `${project.progress || 0}%` }} />
             </div>
+            <p className="text-gray-500 text-xs mt-2">Aggiornato automaticamente in base alle attività completate</p>
           </div>
 
           {project.description && (

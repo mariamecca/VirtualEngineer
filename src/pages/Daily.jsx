@@ -3,7 +3,7 @@ import { format, addDays, subDays, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
-import { tasksAPI, aiAPI } from '../utils/api'
+import { tasksAPI, aiAPI, reportsAPI, projectsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
 import toast from 'react-hot-toast'
 
@@ -21,7 +21,10 @@ export default function Daily() {
   const [showAddForm, setShowAddForm] = useState(false)
 
   useEffect(() => {
-    if (currentProject) loadTasks()
+    if (currentProject) {
+      loadTasks()
+      loadReport()
+    }
   }, [currentProject, selectedDate])
 
   const loadTasks = async () => {
@@ -30,6 +33,25 @@ export default function Daily() {
       const res = await tasksAPI.getDaily(currentProject.id, selectedDate)
       setTasks(res.data)
     } catch { toast.error('Errore nel caricamento attività') } finally { setLoading(false) }
+  }
+
+  const loadReport = async () => {
+    try {
+      const res = await reportsAPI.getDaily(currentProject.id, selectedDate)
+      if (res.data) setReport(res.data)
+      else setReport(null)
+    } catch { setReport(null) }
+  }
+
+  const updateProjectProgress = async (updatedTasks) => {
+    if (!currentProject) return
+    const total = updatedTasks.length
+    if (total === 0) return
+    const completed = updatedTasks.filter(t => t.completed).length
+    const newProgress = Math.round((completed / total) * 100)
+    try {
+      await projectsAPI.update(currentProject.id, { progress: newProgress })
+    } catch { }
   }
 
   const generatePlan = async () => {
@@ -46,7 +68,9 @@ export default function Daily() {
   const toggleTask = async (task) => {
     try {
       await tasksAPI.updateTask(task.id, { completed: !task.completed })
-      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, completed: !t.completed } : t))
+      const updatedTasks = tasks.map(t => t.id === task.id ? { ...t, completed: !t.completed } : t)
+      setTasks(updatedTasks)
+      updateProjectProgress(updatedTasks)
     } catch { toast.error('Errore nell\'aggiornamento') }
   }
 
@@ -54,7 +78,9 @@ export default function Daily() {
     e.stopPropagation()
     try {
       await tasksAPI.deleteTask(taskId)
-      setTasks(prev => prev.filter(t => t.id !== taskId))
+      const updatedTasks = tasks.filter(t => t.id !== taskId)
+      setTasks(updatedTasks)
+      updateProjectProgress(updatedTasks)
       toast.success('Attività eliminata')
     } catch { toast.error('Errore nell\'eliminazione') }
   }
