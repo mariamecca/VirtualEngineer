@@ -71,6 +71,8 @@ async def generate_daily_plan(req: DailyPlanRequest, db: Session = Depends(get_d
 @router.post("/daily-report")
 async def generate_daily_report(req: ReportRequest, db: Session = Depends(get_db)):
     project = db.query(Project).filter(Project.id == req.project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Progetto non trovato")
     tasks = db.query(Task).filter(Task.project_id == req.project_id, Task.date == req.date).all()
 
     ai = get_ai()

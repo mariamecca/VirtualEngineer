@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from models.database import get_db
 from models.task import Task
@@ -35,6 +35,8 @@ def add_task(data: TaskCreate, db: Session = Depends(get_db)):
 @router.put("/{task_id}")
 def update_task(task_id: int, data: TaskUpdate, db: Session = Depends(get_db)):
     task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task non trovato")
     for k, v in data.dict(exclude_none=True).items():
         setattr(task, k, v)
     db.commit()

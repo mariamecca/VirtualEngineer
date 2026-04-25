@@ -50,7 +50,7 @@ export default function Onboarding() {
 
   const createProject = async () => {
     try {
-      const res = await projectsAPI.create({ ...form, budget: parseFloat(form.budget) })
+      const res = await projectsAPI.create({ ...form, budget: parseFloat(form.budget) || 0 })
       addProject(res.data)
       setCurrentProject(res.data)
       toast.success('Cantiere creato!')

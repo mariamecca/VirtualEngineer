@@ -25,7 +25,7 @@ export default function Daily() {
     try {
       const res = await tasksAPI.getDaily(currentProject.id, today)
       setTasks(res.data)
-    } catch { } finally { setLoading(false) }
+    } catch { toast.error('Errore nel caricamento attività') } finally { setLoading(false) }
   }
 
   const generatePlan = async () => {

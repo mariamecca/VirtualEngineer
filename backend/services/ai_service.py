@@ -104,7 +104,7 @@ Rispondi SOLO con JSON valido:
                     with pdfplumber.open(io.BytesIO(f['content'])) as pdf:
                         text = '\n'.join(page.extract_text() or '' for page in pdf.pages[:10])
                         extracted_text.append(f"[{f['name']}]\n{text[:3000]}")
-                except:
+                except Exception:
                     extracted_text.append(f"[{f['name']}] - Impossibile estrarre testo")
             elif 'text' in f.get('type', ''):
                 extracted_text.append(f"[{f['name']}]\n{f['content'].decode('utf-8', errors='ignore')[:3000]}")
