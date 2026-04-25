@@ -27,7 +27,7 @@ class ChatRequest(BaseModel):
     message: str
 
 def get_ai():
-    key = os.getenv("ANTHROPIC_API_KEY", "")
+    key = os.getenv("GROQ_API_KEY", "")
     if not key:
         raise HTTPException(status_code=400, detail="API key non configurata. Vai in Impostazioni.")
     return AIService(key)

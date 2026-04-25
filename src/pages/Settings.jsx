@@ -14,7 +14,7 @@ export default function Settings() {
 
   const save = async () => {
     try {
-      await axios.post('http://localhost:8000/api/settings', { anthropic_api_key: apiKey })
+      await axios.post('http://localhost:8000/api/settings', { groq_api_key: apiKey })
       toast.success('Impostazioni salvate')
       setSaved(true)
     } catch { toast.error('Errore nel salvataggio') }
@@ -27,16 +27,16 @@ export default function Settings() {
       <div className="card space-y-4">
         <h2 className="font-semibold text-white">Configurazione AI</h2>
         <div>
-          <label className="label">Anthropic API Key</label>
+          <label className="label">Groq API Key (gratuita)</label>
           <input
             className="input"
             type="password"
             value={apiKey}
             onChange={e => { setApiKey(e.target.value); setSaved(false) }}
-            placeholder="sk-ant-..."
+            placeholder="gsk_..."
           />
           <p className="text-gray-500 text-xs mt-1">
-            Ottieni la tua API key su console.anthropic.com
+            Ottieni la tua API key gratuita su console.groq.com
           </p>
         </div>
         <button onClick={save} className="btn-primary">
