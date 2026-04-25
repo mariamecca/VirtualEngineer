@@ -5,9 +5,11 @@ from models.database import get_db
 from models.project import Project
 from models.task import Task
 from models.report import Report
+from models.optimization import Optimization
 from services.ai_service import AIService
 from pydantic import BaseModel
 import os
+import json
 
 router = APIRouter()
 
@@ -107,7 +109,24 @@ async def get_optimizations(req: OptimizationRequest, db: Session = Depends(get_
     tasks = db.query(Task).filter(Task.project_id == req.project_id).all()
 
     ai = get_ai()
-    return await ai.get_optimizations(project, tasks)
+    result = await ai.get_optimizations(project, tasks)
+
+    existing = db.query(Optimization).filter(Optimization.project_id == req.project_id).first()
+    if existing:
+        existing.suggestions = json.dumps(result.get("suggestions", []))
+    else:
+        opt = Optimization(project_id=req.project_id, suggestions=json.dumps(result.get("suggestions", [])))
+        db.add(opt)
+    db.commit()
+
+    return result
+
+@router.get("/optimizations/{project_id}")
+def load_optimizations(project_id: int, db: Session = Depends(get_db)):
+    opt = db.query(Optimization).filter(Optimization.project_id == project_id).first()
+    if not opt:
+        return None
+    return {"suggestions": json.loads(opt.suggestions)}
 
 @router.post("/chat")
 async def chat(req: ChatRequest, db: Session = Depends(get_db)):

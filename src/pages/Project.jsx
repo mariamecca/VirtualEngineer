@@ -17,7 +17,8 @@ export default function Project() {
   useEffect(() => {
     Promise.all([
       projectsAPI.getById(id).then(r => setProject(r.data)),
-      filesAPI.getByProject(id).then(r => setFiles(r.data))
+      filesAPI.getByProject(id).then(r => setFiles(r.data)),
+      aiAPI.loadOptimizations(id).then(r => { if (r.data) setOptimizations(r.data) }).catch(() => {})
     ]).catch(() => toast.error('Errore nel caricamento'))
   }, [id])
 

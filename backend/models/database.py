@@ -22,4 +22,5 @@ def init_db():
     from models.task import Task
     from models.report import Report
     from models.file import File
+    from models.optimization import Optimization
     Base.metadata.create_all(bind=engine)
