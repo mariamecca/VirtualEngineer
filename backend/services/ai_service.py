@@ -19,8 +19,12 @@ class AIService:
         return response.choices[0].message.content
 
     def _parse_json(self, text: str) -> Dict:
+        # Remove markdown code blocks if present
+        text = text.replace('```json', '').replace('```', '').strip()
         start = text.find('{')
         end = text.rfind('}') + 1
+        if start == -1 or end == 0:
+            raise ValueError(f"Nessun JSON trovato nella risposta: {text[:200]}")
         return json.loads(text[start:end])
 
     def _project_context(self, project) -> str:
