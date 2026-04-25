@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { projectsAPI, filesAPI, aiAPI } from '../utils/api'
 import { useDropzone } from 'react-dropzone'
-import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 export default function Project() {
   const { id } = useParams()
@@ -13,10 +12,19 @@ export default function Project() {
   const [optimizations, setOptimizations] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [tab, setTab] = useState('overview')
+  const [editing, setEditing] = useState(false)
+  const [editForm, setEditForm] = useState({})
+  const [savingEdit, setSavingEdit] = useState(false)
+  const [progressValue, setProgressValue] = useState(0)
+  const [savingProgress, setSavingProgress] = useState(false)
 
   useEffect(() => {
     Promise.all([
-      projectsAPI.getById(id).then(r => setProject(r.data)),
+      projectsAPI.getById(id).then(r => {
+        setProject(r.data)
+        setEditForm(r.data)
+        setProgressValue(r.data.progress || 0)
+      }),
       filesAPI.getByProject(id).then(r => setFiles(r.data)),
       aiAPI.loadOptimizations(id).then(r => { if (r.data) setOptimizations(r.data) }).catch(() => {})
     ]).catch(() => toast.error('Errore nel caricamento'))
@@ -43,9 +51,39 @@ export default function Project() {
     } catch { toast.error('Errore AI') }
   }
 
+  const saveEdit = async () => {
+    setSavingEdit(true)
+    try {
+      const res = await projectsAPI.update(id, {
+        name: editForm.name,
+        location: editForm.location,
+        client: editForm.client,
+        budget: parseFloat(editForm.budget) || 0,
+        deadline: editForm.deadline,
+        current_phase: editForm.current_phase,
+        description: editForm.description,
+        notes: editForm.notes
+      })
+      setProject(res.data)
+      setEditing(false)
+      toast.success('Cantiere aggiornato')
+    } catch { toast.error('Errore nel salvataggio') }
+    finally { setSavingEdit(false) }
+  }
+
+  const saveProgress = async () => {
+    setSavingProgress(true)
+    try {
+      const res = await projectsAPI.update(id, { progress: progressValue })
+      setProject(prev => ({ ...prev, progress: res.data.progress }))
+      toast.success('Avanzamento aggiornato')
+    } catch { toast.error('Errore nel salvataggio') }
+    finally { setSavingProgress(false) }
+  }
+
   if (!project) return <div className="p-8 text-gray-400">Caricamento...</div>
 
-  const tabs = ['overview', 'files', 'ottimizzazioni']
+  const tabs = ['overview', 'modifica', 'files', 'ottimizzazioni']
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -57,7 +95,7 @@ export default function Project() {
       <div className="grid grid-cols-4 gap-4 mb-8">
         {[
           { label: 'Budget', value: `€${project.budget?.toLocaleString()}`, color: 'text-white' },
-          { label: 'Scadenza', value: project.deadline, color: 'text-white' },
+          { label: 'Scadenza', value: project.deadline || 'N/D', color: 'text-white' },
           { label: 'Fase attuale', value: project.current_phase || 'N/D', color: 'text-amber-400' },
           { label: 'Completamento', value: `${project.progress || 0}%`, color: 'text-green-400' }
         ].map(({ label, value, color }) => (
@@ -84,13 +122,32 @@ export default function Project() {
 
       {tab === 'overview' && (
         <div className="space-y-6">
+          {/* Avanzamento aggiornabile */}
           <div className="card">
-            <h3 className="font-semibold text-white mb-3">Avanzamento lavori</h3>
-            <div className="h-2 bg-gray-800 rounded-full mb-2">
-              <div className="h-full bg-blue-600 rounded-full" style={{ width: `${project.progress || 0}%` }} />
+            <h3 className="font-semibold text-white mb-4">Avanzamento lavori</h3>
+            <div className="h-2 bg-gray-800 rounded-full mb-4">
+              <div className="h-full bg-blue-600 rounded-full transition-all" style={{ width: `${progressValue}%` }} />
             </div>
-            <p className="text-gray-400 text-sm">{project.progress || 0}% completato</p>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={progressValue}
+                onChange={e => setProgressValue(Number(e.target.value))}
+                className="flex-1 accent-blue-600"
+              />
+              <span className="text-white font-bold w-12 text-right">{progressValue}%</span>
+              <button
+                onClick={saveProgress}
+                disabled={savingProgress || progressValue === project.progress}
+                className="btn-primary text-sm py-1.5 px-3"
+              >
+                {savingProgress ? '...' : 'Salva'}
+              </button>
+            </div>
           </div>
+
           {project.description && (
             <div className="card">
               <h3 className="font-semibold text-white mb-3">Descrizione</h3>
@@ -103,6 +160,49 @@ export default function Project() {
               <p className="text-gray-300 text-sm leading-relaxed">{project.notes}</p>
             </div>
           )}
+        </div>
+      )}
+
+      {tab === 'modifica' && (
+        <div className="card space-y-4">
+          <h3 className="font-semibold text-white">Modifica dati cantiere</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className="label">Nome cantiere</label>
+              <input className="input" value={editForm.name || ''} onChange={e => setEditForm(p => ({...p, name: e.target.value}))} />
+            </div>
+            <div>
+              <label className="label">Luogo</label>
+              <input className="input" value={editForm.location || ''} onChange={e => setEditForm(p => ({...p, location: e.target.value}))} />
+            </div>
+            <div>
+              <label className="label">Cliente</label>
+              <input className="input" value={editForm.client || ''} onChange={e => setEditForm(p => ({...p, client: e.target.value}))} />
+            </div>
+            <div>
+              <label className="label">Budget (€)</label>
+              <input className="input" type="number" value={editForm.budget || ''} onChange={e => setEditForm(p => ({...p, budget: e.target.value}))} />
+            </div>
+            <div>
+              <label className="label">Scadenza</label>
+              <input className="input" type="date" value={editForm.deadline || ''} onChange={e => setEditForm(p => ({...p, deadline: e.target.value}))} />
+            </div>
+            <div className="col-span-2">
+              <label className="label">Fase attuale</label>
+              <input className="input" value={editForm.current_phase || ''} onChange={e => setEditForm(p => ({...p, current_phase: e.target.value}))} />
+            </div>
+            <div className="col-span-2">
+              <label className="label">Descrizione</label>
+              <textarea className="input" rows={3} value={editForm.description || ''} onChange={e => setEditForm(p => ({...p, description: e.target.value}))} />
+            </div>
+            <div className="col-span-2">
+              <label className="label">Note</label>
+              <textarea className="input" rows={3} value={editForm.notes || ''} onChange={e => setEditForm(p => ({...p, notes: e.target.value}))} />
+            </div>
+          </div>
+          <button onClick={saveEdit} disabled={savingEdit} className="btn-primary">
+            {savingEdit ? 'Salvataggio...' : 'Salva modifiche'}
+          </button>
         </div>
       )}
 
@@ -148,6 +248,11 @@ export default function Project() {
             </div>
           ) : (
             <div className="space-y-4">
+              <div className="flex justify-end">
+                <button onClick={getOptimizations} className="btn-secondary text-sm">
+                  Rigenera suggerimenti
+                </button>
+              </div>
               {optimizations.suggestions?.map((s, i) => (
                 <div key={i} className={`card border-l-4 ${
                   s.type === 'budget' ? 'border-l-green-500' :

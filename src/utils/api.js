@@ -16,6 +16,7 @@ export const projectsAPI = {
 export const tasksAPI = {
   getDaily: (projectId, date) => api.get(`/tasks/daily/${projectId}?date=${date}`),
   updateTask: (taskId, data) => api.put(`/tasks/${taskId}`, data),
+  deleteTask: (taskId) => api.delete(`/tasks/${taskId}`),
   addTask: (data) => api.post('/tasks', data)
 }
 
