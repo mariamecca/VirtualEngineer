@@ -85,20 +85,23 @@ Data: {date}
 
 {tasks_summary}
 
-Scrivi un resoconto professionale che includa:
+Scrivi un resoconto professionale in italiano che includa:
 1. Valutazione dei progressi odierni
 2. Impatto sul cronoprogramma e budget
 3. Eventuali problemi o rischi identificati
 4. Priorità per la giornata di domani
 
-Rispondi SOLO con JSON valido:
-{{
-  "summary": "resoconto dettagliato in italiano (3-5 paragrafi)",
-  "next_day_preview": "cosa fare domani (2-3 punti chiave)"
-}}"""
+Scrivi solo il testo del resoconto, senza JSON, senza titoli, senza simboli speciali. Solo testo piano in italiano."""
 
-        text = self._chat(prompt)
-        return self._parse_json(text)
+        summary = self._chat(prompt)
+
+        prompt2 = f"""In base a questo resoconto di cantiere, elenca in 2-3 punti brevi le priorità per domani. Solo testo piano, niente JSON.
+
+{summary[:500]}"""
+
+        next_day = self._chat(prompt2, max_tokens=300)
+
+        return {"summary": summary.strip(), "next_day_preview": next_day.strip()}
 
     async def analyze_documents(self, files: List[Dict]) -> Dict:
         extracted_text = []
