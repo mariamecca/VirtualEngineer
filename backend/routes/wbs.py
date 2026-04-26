@@ -173,11 +173,13 @@ def delete_checklist(checklist_id: int, db: Session = Depends(get_db)):
 
 def _update_wbs_progress(wbs_id: int, db: Session):
     items = db.query(WBSChecklist).filter(WBSChecklist.wbs_id == wbs_id).all()
+    w = db.query(WBS).filter(WBS.id == wbs_id).first()
+    if not w:
+        return
     if not items:
+        w.progress = 0
+        db.commit()
         return
     done = sum(1 for i in items if i.completed)
-    progress = round((done / len(items)) * 100)
-    w = db.query(WBS).filter(WBS.id == wbs_id).first()
-    if w:
-        w.progress = progress
-        db.commit()
+    w.progress = round((done / len(items)) * 100)
+    db.commit()

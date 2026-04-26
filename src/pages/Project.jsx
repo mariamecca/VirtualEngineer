@@ -87,7 +87,7 @@ export default function Project() {
         notes: editForm.notes
       })
       setProject(res.data)
-      setEditing(false)
+      setTab('overview')
       toast.success('Cantiere aggiornato')
     } catch { toast.error('Errore nel salvataggio') }
     finally { setSavingEdit(false) }

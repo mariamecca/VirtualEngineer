@@ -455,7 +455,7 @@ function WBSItem({
                 {item.budget > 0 && (
                   <span className="text-xs text-amber-400 flex items-center gap-1">
                     <CurrencyEuroIcon className="w-3 h-3" />
-                    €{item.budget.toLocaleString()}
+                    €{(item.budget || 0).toLocaleString()}
                   </span>
                 )}
                 {(item.start_date || item.end_date) && (
