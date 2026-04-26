@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { projectsAPI, filesAPI, aiAPI } from '../utils/api'
 import { useDropzone } from 'react-dropzone'
-import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 export default function Project() {
@@ -14,6 +14,10 @@ export default function Project() {
   const [tab, setTab] = useState('overview')
   const [editForm, setEditForm] = useState({})
   const [savingEdit, setSavingEdit] = useState(false)
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
+  const chatEndRef = useRef(null)
 
   useEffect(() => {
     Promise.all([
@@ -22,9 +26,14 @@ export default function Project() {
         setEditForm(r.data)
       }),
       filesAPI.getByProject(id).then(r => setFiles(r.data)),
-      aiAPI.loadOptimizations(id).then(r => { if (r.data) setOptimizations(r.data) }).catch(() => {})
+      aiAPI.loadOptimizations(id).then(r => { if (r.data) setOptimizations(r.data) }).catch(() => {}),
+      aiAPI.getChatHistory(id).then(r => { if (r.data) setChatMessages(r.data) }).catch(() => {})
     ]).catch(() => toast.error('Errore nel caricamento'))
   }, [id])
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMessages])
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: async (accepted) => {
@@ -39,6 +48,23 @@ export default function Project() {
       finally { setUploading(false) }
     }
   })
+
+  const sendChat = async () => {
+    if (!chatInput.trim() || chatLoading) return
+    const userMsg = { role: 'user', content: chatInput.trim() }
+    setChatMessages(prev => [...prev, userMsg])
+    setChatInput('')
+    setChatLoading(true)
+    try {
+      const res = await aiAPI.chat(id, userMsg.content)
+      setChatMessages(prev => [...prev, { role: 'assistant', content: res.data.response }])
+    } catch {
+      toast.error('Errore nella risposta AI')
+      setChatMessages(prev => prev.slice(0, -1))
+    } finally {
+      setChatLoading(false)
+    }
+  }
 
   const getOptimizations = async () => {
     try {
@@ -69,7 +95,7 @@ export default function Project() {
 
   if (!project) return <div className="p-8 text-gray-400">Caricamento...</div>
 
-  const tabs = ['overview', 'modifica', 'files', 'ottimizzazioni']
+  const tabs = ['overview', 'modifica', 'files', 'ottimizzazioni', 'chat AI']
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -203,6 +229,55 @@ export default function Project() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {tab === 'chat AI' && (
+        <div className="flex flex-col h-[600px]">
+          <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-1">
+            {chatMessages.length === 0 && (
+              <div className="text-center py-16">
+                <SparklesIcon className="w-10 h-10 text-gray-700 mx-auto mb-3" />
+                <p className="text-gray-500 text-sm">Chiedimi qualcosa sul cantiere</p>
+              </div>
+            )}
+            {chatMessages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                  msg.role === 'user'
+                    ? 'bg-blue-600 text-white rounded-br-sm'
+                    : 'bg-gray-800 text-gray-200 rounded-bl-sm'
+                }`}>
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {chatLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-800 rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-gray-400">
+                  <span className="animate-pulse">VirtualEngineer sta scrivendo...</span>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+          <div className="flex gap-2">
+            <input
+              className="input flex-1"
+              placeholder="Chiedi qualcosa al tuo ingegnere virtuale..."
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && sendChat()}
+              disabled={chatLoading}
+            />
+            <button
+              onClick={sendChat}
+              disabled={chatLoading || !chatInput.trim()}
+              className="btn-primary flex items-center gap-2 px-4"
+            >
+              <PaperAirplaneIcon className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}

@@ -28,7 +28,8 @@ export const aiAPI = {
   getDailyReport: (projectId, date) => api.post('/ai/daily-report', { project_id: projectId, date }),
   getOptimizations: (projectId) => api.post('/ai/optimizations', { project_id: projectId }),
   loadOptimizations: (projectId) => api.get(`/ai/optimizations/${projectId}`),
-  chat: (projectId, message) => api.post('/ai/chat', { project_id: projectId, message })
+  chat: (projectId, message) => api.post('/ai/chat', { project_id: projectId, message }),
+  getChatHistory: (projectId) => api.get(`/ai/chat/${projectId}`)
 }
 
 export const filesAPI = {

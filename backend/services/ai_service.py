@@ -170,12 +170,18 @@ Rispondi SOLO con JSON valido:
         text = self._chat(prompt)
         return self._parse_json(text)
 
-    async def chat(self, project, message: str) -> Dict:
+    async def chat(self, project, message: str, history: List = None) -> Dict:
+        history_text = ""
+        if history:
+            for msg in history:
+                role_label = "Capo-cantiere" if msg.role == "user" else "VirtualEngineer"
+                history_text += f"{role_label}: {msg.content}\n"
+
         prompt = f"""Sei VirtualEngineer, un assistente AI specializzato in gestione di cantieri edili.
 
 {self._project_context(project)}
-
-Domanda del capo-cantiere: {message}
+{"Conversazione precedente:" + chr(10) + history_text if history_text else ""}
+Capo-cantiere: {message}
 
 Rispondi in modo professionale e pratico, in italiano."""
 

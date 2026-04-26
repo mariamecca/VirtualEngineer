@@ -6,6 +6,7 @@ from models.project import Project
 from models.task import Task
 from models.report import Report
 from models.optimization import Optimization
+from models.chat_message import ChatMessage
 from services.ai_service import AIService
 from pydantic import BaseModel
 import os
@@ -130,8 +131,38 @@ def load_optimizations(project_id: int, db: Session = Depends(get_db)):
         return None
     return {"suggestions": json.loads(opt.suggestions)}
 
+@router.get("/chat/{project_id}")
+def get_chat_history(project_id: int, db: Session = Depends(get_db)):
+    messages = db.query(ChatMessage).filter(
+        ChatMessage.project_id == project_id
+    ).order_by(ChatMessage.created_at).all()
+    return messages
+
 @router.post("/chat")
 async def chat(req: ChatRequest, db: Session = Depends(get_db)):
     project = db.query(Project).filter(Project.id == req.project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Progetto non trovato")
+
+    # Save user message
+    user_msg = ChatMessage(project_id=req.project_id, role="user", content=req.message)
+    db.add(user_msg)
+    db.commit()
+
+    # Get recent history for context
+    history = db.query(ChatMessage).filter(
+        ChatMessage.project_id == req.project_id
+    ).order_by(ChatMessage.created_at.desc()).limit(10).all()
+    history = list(reversed(history))
+
     ai = get_ai()
-    return await ai.chat(project, req.message)
+    result = await ai.chat(project, req.message, history[:-1])
+
+    # Save assistant message
+    assistant_msg = ChatMessage(project_id=req.project_id, role="assistant", content=result["response"])
+    db.add(assistant_msg)
+    db.commit()
+    db.refresh(user_msg)
+    db.refresh(assistant_msg)
+
+    return {"response": result["response"], "message_id": assistant_msg.id}

@@ -23,4 +23,5 @@ def init_db():
     from models.report import Report
     from models.file import File
     from models.optimization import Optimization
+    from models.chat_message import ChatMessage
     Base.metadata.create_all(bind=engine)
