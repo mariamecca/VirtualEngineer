@@ -7,6 +7,7 @@ from models.task import Task
 from models.report import Report
 from models.optimization import Optimization
 from models.chat_message import ChatMessage
+from models.wbs import WBS, WBSChecklist
 from services.ai_service import AIService
 from pydantic import BaseModel
 import os
@@ -28,6 +29,9 @@ class OptimizationRequest(BaseModel):
 class ChatRequest(BaseModel):
     project_id: int
     message: str
+
+class WBSScheduleRequest(BaseModel):
+    project_id: int
 
 def get_ai():
     key = os.getenv("GROQ_API_KEY", "")
@@ -137,6 +141,32 @@ def get_chat_history(project_id: int, db: Session = Depends(get_db)):
         ChatMessage.project_id == project_id
     ).order_by(ChatMessage.created_at).all()
     return messages
+
+@router.post("/wbs-schedule")
+async def generate_wbs_schedule(req: WBSScheduleRequest, db: Session = Depends(get_db)):
+    project = db.query(Project).filter(Project.id == req.project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Progetto non trovato")
+
+    wbs_items = db.query(WBS).filter(WBS.project_id == req.project_id).order_by(WBS.order_index, WBS.code).all()
+    if not wbs_items:
+        raise HTTPException(status_code=400, detail="Nessuna WBS trovata. Aggiungi prima le WBS del progetto.")
+
+    items_data = []
+    for w in wbs_items:
+        checklist = db.query(WBSChecklist).filter(WBSChecklist.wbs_id == w.id).all()
+        items_data.append({
+            "id": w.id, "code": w.code, "title": w.title,
+            "description": w.description, "budget": w.budget,
+            "start_date": w.start_date, "end_date": w.end_date,
+            "progress": w.progress,
+            "checklist": [{"title": c.title, "completed": c.completed} for c in checklist]
+        })
+
+    ai = get_ai()
+    result = await ai.generate_wbs_schedule(project, items_data)
+    return result
+
 
 @router.post("/chat")
 async def chat(req: ChatRequest, db: Session = Depends(get_db)):

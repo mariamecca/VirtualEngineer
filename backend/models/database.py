@@ -24,4 +24,5 @@ def init_db():
     from models.file import File
     from models.optimization import Optimization
     from models.chat_message import ChatMessage
+    from models.wbs import WBS, WBSChecklist
     Base.metadata.create_all(bind=engine)

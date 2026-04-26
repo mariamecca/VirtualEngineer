@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from models.database import init_db
-from routes import projects, tasks, ai, files, reports, settings
+from routes import projects, tasks, ai, files, reports, settings, wbs
 
 app = FastAPI(title="VirtualEngineer API", version="1.0.0")
 
@@ -23,6 +23,7 @@ app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
 app.include_router(files.router, prefix="/api/files", tags=["files"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(settings.router, prefix="/api/settings", tags=["settings"])
+app.include_router(wbs.router, prefix="/api/wbs", tags=["wbs"])
 
 @app.on_event("startup")
 async def startup():

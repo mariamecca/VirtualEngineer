@@ -29,7 +29,8 @@ export const aiAPI = {
   getOptimizations: (projectId) => api.post('/ai/optimizations', { project_id: projectId }),
   loadOptimizations: (projectId) => api.get(`/ai/optimizations/${projectId}`),
   chat: (projectId, message) => api.post('/ai/chat', { project_id: projectId, message }),
-  getChatHistory: (projectId) => api.get(`/ai/chat/${projectId}`)
+  getChatHistory: (projectId) => api.get(`/ai/chat/${projectId}`),
+  generateWBSSchedule: (projectId) => api.post('/ai/wbs-schedule', { project_id: projectId })
 }
 
 export const filesAPI = {
@@ -37,6 +38,16 @@ export const filesAPI = {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
   getByProject: (projectId) => api.get(`/files/${projectId}`)
+}
+
+export const wbsAPI = {
+  getByProject: (projectId) => api.get(`/wbs/${projectId}`),
+  create: (data) => api.post('/wbs', data),
+  update: (id, data) => api.put(`/wbs/${id}`, data),
+  delete: (id) => api.delete(`/wbs/${id}`),
+  addChecklist: (wbsId, data) => api.post(`/wbs/${wbsId}/checklist`, data),
+  updateChecklist: (checklistId, data) => api.put(`/wbs/checklist/${checklistId}`, data),
+  deleteChecklist: (checklistId) => api.delete(`/wbs/checklist/${checklistId}`)
 }
 
 export const reportsAPI = {

@@ -170,6 +170,58 @@ Rispondi SOLO con JSON valido:
         text = self._chat(prompt)
         return self._parse_json(text)
 
+    async def generate_wbs_schedule(self, project, wbs_items: List[Dict]) -> Dict:
+        wbs_text = ""
+        for w in wbs_items:
+            checklist_count = len(w.get("checklist", []))
+            done_count = sum(1 for c in w.get("checklist", []) if c.get("completed"))
+            wbs_text += f"""
+- [{w['code']}] {w['title']}
+  Budget: €{w.get('budget', 0):,.0f} | Inizio: {w.get('start_date') or 'N/D'} | Fine: {w.get('end_date') or 'N/D'}
+  Progresso: {w.get('progress', 0)}% | Checklist: {done_count}/{checklist_count} voci completate
+  Descrizione: {w.get('description') or 'N/D'}"""
+
+        prompt = f"""Sei un ingegnere edile esperto in pianificazione di cantieri. Analizza queste WBS (Work Breakdown Structure) e genera una pianificazione giorno per giorno ottimizzata per completarle tutte rispettando budget e scadenze.
+
+{self._project_context(project)}
+
+WBS DEL PROGETTO:
+{wbs_text}
+
+Genera un piano di lavoro giornaliero che:
+1. Distribuisca le attività in modo logico e sequenziale
+2. Rispetti le scadenze di ogni WBS
+3. Ottimizzi l'uso del budget disponibile
+4. Indichi quali WBS lavorare ogni giorno
+
+Rispondi SOLO con JSON valido:
+{{
+  "summary": "breve analisi della pianificazione e raccomandazioni principali",
+  "total_days": <numero totale giorni stimati>,
+  "days": [
+    {{
+      "day": 1,
+      "date_label": "Giorno 1 (es. Settimana 1 - Lunedì)",
+      "focus": "titolo breve del focus del giorno",
+      "wbs_activities": [
+        {{
+          "wbs_code": "codice WBS",
+          "wbs_title": "titolo WBS",
+          "activity": "cosa fare concretamente oggi per questa WBS",
+          "hours": <ore stimate>,
+          "budget_giornaliero": <budget da allocare oggi in euro>
+        }}
+      ],
+      "note": "note operative del giorno"
+    }}
+  ]
+}}
+
+Genera massimo 30 giorni. Se il progetto dura di più, raggruppa le attività settimanalmente."""
+
+        text = self._chat(prompt, max_tokens=4000)
+        return self._parse_json(text)
+
     async def chat(self, project, message: str, history: List = None) -> Dict:
         history_text = ""
         if history:

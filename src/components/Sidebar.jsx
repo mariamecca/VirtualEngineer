@@ -5,7 +5,8 @@ import {
   FolderIcon,
   ChartBarIcon,
   Cog6ToothIcon,
-  WrenchScrewdriverIcon
+  WrenchScrewdriverIcon,
+  RectangleGroupIcon
 } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 
@@ -70,6 +71,22 @@ export default function Sidebar() {
           >
             <FolderIcon className="w-5 h-5" />
             Progetto
+          </NavLink>
+        )}
+
+        {currentProject && (
+          <NavLink
+            to="/wbs"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium ${
+                isActive
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`
+            }
+          >
+            <RectangleGroupIcon className="w-5 h-5" />
+            WBS
           </NavLink>
         )}
       </nav>
