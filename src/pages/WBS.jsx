@@ -4,7 +4,7 @@ import { useProjectStore } from '../store/projectStore'
 import {
   PlusIcon, TrashIcon, ChevronDownIcon, ChevronRightIcon,
   SparklesIcon, CheckCircleIcon, CalendarDaysIcon, CurrencyEuroIcon,
-  PencilIcon, CheckIcon, XMarkIcon
+  PencilIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -130,10 +130,12 @@ export default function WBS() {
     }
   }
 
+  const today = new Date().toISOString().slice(0, 10)
   const rootItems = items.filter(i => !i.parent_id)
   const childrenOf = (id) => items.filter(i => i.parent_id === id)
   const totalBudget = items.filter(i => !i.parent_id).reduce((s, i) => s + (i.budget || 0), 0)
   const avgProgress = items.length ? Math.round(items.reduce((s, i) => s + i.progress, 0) / items.length) : 0
+  const overdueItems = items.filter(i => i.end_date && i.end_date < today && i.progress < 100)
 
   if (!currentProject) {
     return (
@@ -159,6 +161,21 @@ export default function WBS() {
           {schedulingLoading ? 'Generazione...' : 'Pianifica con AI'}
         </button>
       </div>
+
+      {/* Alert scadenze superate */}
+      {overdueItems.length > 0 && (
+        <div className="mb-5 p-4 rounded-xl bg-red-950/50 border border-red-800 flex items-start gap-3">
+          <ExclamationTriangleIcon className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-red-300 font-medium text-sm">
+              {overdueItems.length} WBS {overdueItems.length === 1 ? 'è in ritardo' : 'sono in ritardo'}
+            </p>
+            <p className="text-red-400/70 text-xs mt-0.5">
+              {overdueItems.map(i => `[${i.code}] ${i.title}`).join(' · ')}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4 mb-6">
@@ -444,6 +461,16 @@ function WBSItem({
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-mono text-blue-400 bg-blue-950 px-2 py-0.5 rounded">{item.code}</span>
                 <span className="text-white font-medium">{item.title}</span>
+                {item.progress === 100 && (
+                  <span className="text-xs bg-green-900/50 text-green-400 border border-green-800 px-2 py-0.5 rounded-full">
+                    ✓ Completato
+                  </span>
+                )}
+                {item.end_date && item.end_date < today && item.progress < 100 && (
+                  <span className="text-xs bg-red-900/50 text-red-400 border border-red-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <ExclamationTriangleIcon className="w-3 h-3" /> In ritardo
+                  </span>
+                )}
                 {checkTotal > 0 && (
                   <span className="text-xs text-gray-500">{checkDone}/{checkTotal} voci</span>
                 )}
