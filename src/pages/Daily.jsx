@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 import { tasksAPI, aiAPI, reportsAPI, projectsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
@@ -111,6 +111,39 @@ export default function Daily() {
       setReport(res.data)
     } catch { toast.error('Errore nel report') }
     finally { setReportLoading(false) }
+  }
+
+  const exportReport = () => {
+    const dateLabel = format(parseISO(selectedDate), 'd MMMM yyyy', { locale: it })
+    const completedTasks = tasks.filter(t => t.completed)
+    const pendingTasks = tasks.filter(t => !t.completed)
+    let text = `RESOCONTO GIORNALIERO — ${dateLabel}\n`
+    text += `Cantiere: ${currentProject.name}\n`
+    text += `${'='.repeat(50)}\n\n`
+    text += `AVANZAMENTO: ${completedTasks.length}/${tasks.length} attività completate (${progress}%)\n\n`
+    if (completedTasks.length) {
+      text += `COMPLETATE:\n`
+      completedTasks.forEach(t => { text += `  ✓ ${t.title}\n` })
+      text += '\n'
+    }
+    if (pendingTasks.length) {
+      text += `IN SOSPESO:\n`
+      pendingTasks.forEach(t => { text += `  ○ ${t.title}\n` })
+      text += '\n'
+    }
+    if (report?.summary) {
+      text += `ANALISI AI:\n${report.summary}\n\n`
+    }
+    if (report?.next_day_preview) {
+      text += `PRIORITÀ DOMANI:\n${report.next_day_preview}\n`
+    }
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `resoconto_${selectedDate}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const goToPrevDay = () => setSelectedDate(format(subDays(parseISO(selectedDate), 1), 'yyyy-MM-dd'))
@@ -274,7 +307,13 @@ export default function Daily() {
 
       {/* Resoconto */}
       {tasks.length > 0 && (
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end gap-2 mb-6">
+          {(report || tasks.length > 0) && (
+            <button onClick={exportReport} className="btn-secondary flex items-center gap-2">
+              <ArrowDownTrayIcon className="w-4 h-4" />
+              Esporta .txt
+            </button>
+          )}
           <button
             onClick={generateReport}
             disabled={reportLoading}
