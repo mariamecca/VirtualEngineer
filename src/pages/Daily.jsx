@@ -17,6 +17,7 @@ export default function Daily() {
   const [report, setReport] = useState(null)
   const [reportLoading, setReportLoading] = useState(false)
   const [newTaskTitle, setNewTaskTitle] = useState('')
+  const [newTaskPriority, setNewTaskPriority] = useState('media')
   const [addingTask, setAddingTask] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
 
@@ -94,10 +95,11 @@ export default function Daily() {
         project_id: currentProject.id,
         title: newTaskTitle.trim(),
         date: selectedDate,
-        priority: 'media'
+        priority: newTaskPriority
       })
       setTasks(prev => [...prev, res.data])
       setNewTaskTitle('')
+      setNewTaskPriority('media')
       setShowAddForm(false)
       toast.success('Attività aggiunta')
     } catch { toast.error('Errore nell\'aggiunta') }
@@ -268,21 +270,40 @@ export default function Daily() {
         <div className="mb-8">
           {showAddForm ? (
             <div className="card border-blue-800">
-              <div className="flex gap-3">
+              <div className="space-y-3">
                 <input
-                  className="input flex-1"
+                  className="input w-full"
                   placeholder="Descrivi l'attività..."
                   value={newTaskTitle}
                   onChange={e => setNewTaskTitle(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addTask()}
                   autoFocus
                 />
-                <button onClick={addTask} disabled={addingTask} className="btn-primary">
-                  {addingTask ? '...' : 'Aggiungi'}
-                </button>
-                <button onClick={() => { setShowAddForm(false); setNewTaskTitle('') }} className="btn-secondary">
-                  Annulla
-                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400 text-sm">Priorità:</span>
+                  {['bassa', 'media', 'alta'].map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setNewTaskPriority(p)}
+                      className={`text-xs px-3 py-1.5 rounded-lg border transition-colors capitalize ${
+                        newTaskPriority === p
+                          ? p === 'alta' ? 'bg-red-900/60 border-red-600 text-red-300'
+                            : p === 'media' ? 'bg-amber-900/60 border-amber-600 text-amber-300'
+                            : 'bg-gray-700 border-gray-500 text-gray-300'
+                          : 'border-gray-700 text-gray-500 hover:border-gray-500'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <div className="flex-1" />
+                  <button onClick={addTask} disabled={addingTask} className="btn-primary text-sm">
+                    {addingTask ? '...' : 'Aggiungi'}
+                  </button>
+                  <button onClick={() => { setShowAddForm(false); setNewTaskTitle(''); setNewTaskPriority('media') }} className="btn-secondary text-sm">
+                    Annulla
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
