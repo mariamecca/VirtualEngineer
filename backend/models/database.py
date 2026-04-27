@@ -25,4 +25,5 @@ def init_db():
     from models.optimization import Optimization
     from models.chat_message import ChatMessage
     from models.wbs import WBS, WBSChecklist
+    from models.progress_history import ProgressHistory
     Base.metadata.create_all(bind=engine)

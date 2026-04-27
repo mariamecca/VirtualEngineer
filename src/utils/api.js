@@ -52,7 +52,9 @@ export const wbsAPI = {
 
 export const reportsAPI = {
   getProgress: (projectId) => api.get(`/reports/progress/${projectId}`),
-  getDaily: (projectId, date) => api.get(`/reports/daily/${projectId}?date=${date}`)
+  getDaily: (projectId, date) => api.get(`/reports/daily/${projectId}?date=${date}`),
+  saveSnapshot: (projectId, date, progress) => api.post('/reports/progress-snapshot', { project_id: projectId, date, progress }),
+  getProgressHistory: (projectId) => api.get(`/reports/progress-history/${projectId}`)
 }
 
 export default api

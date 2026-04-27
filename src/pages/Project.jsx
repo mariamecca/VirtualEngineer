@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { projectsAPI, filesAPI, aiAPI } from '../utils/api'
+import { projectsAPI, filesAPI, aiAPI, reportsAPI } from '../utils/api'
 import { useDropzone } from 'react-dropzone'
 import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import toast from 'react-hot-toast'
 
 export default function Project() {
@@ -17,6 +18,7 @@ export default function Project() {
   const [chatMessages, setChatMessages] = useState([])
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
+  const [progressHistory, setProgressHistory] = useState([])
   const chatEndRef = useRef(null)
 
   useEffect(() => {
@@ -27,7 +29,8 @@ export default function Project() {
       }),
       filesAPI.getByProject(id).then(r => setFiles(r.data)),
       aiAPI.loadOptimizations(id).then(r => { if (r.data) setOptimizations(r.data) }).catch(() => {}),
-      aiAPI.getChatHistory(id).then(r => { if (r.data) setChatMessages(r.data) }).catch(() => {})
+      aiAPI.getChatHistory(id).then(r => { if (r.data) setChatMessages(r.data) }).catch(() => {}),
+      reportsAPI.getProgressHistory(id).then(r => { if (r.data) setProgressHistory(r.data) }).catch(() => {})
     ]).catch(() => toast.error('Errore nel caricamento'))
   }, [id])
 
@@ -95,7 +98,7 @@ export default function Project() {
 
   if (!project) return <div className="p-8 text-gray-400">Caricamento...</div>
 
-  const tabs = ['overview', 'modifica', 'files', 'ottimizzazioni', 'chat AI']
+  const tabs = ['overview', 'storico', 'modifica', 'files', 'ottimizzazioni', 'chat AI']
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -155,6 +158,88 @@ export default function Project() {
             <div className="card">
               <h3 className="font-semibold text-white mb-3">Note</h3>
               <p className="text-gray-300 text-sm leading-relaxed">{project.notes}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === 'storico' && (
+        <div className="space-y-6">
+          <div className="card">
+            <h3 className="text-white font-semibold mb-1">Avanzamento nel tempo</h3>
+            <p className="text-gray-400 text-sm mb-6">
+              {progressHistory.length === 0
+                ? 'Nessun dato ancora — il grafico si aggiorna automaticamente ogni volta che completi task nella giornata.'
+                : `${progressHistory.length} rilevamenti dal ${progressHistory[0]?.date} ad oggi`}
+            </p>
+
+            {progressHistory.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-600">
+                <svg className="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 13.5l4-4 4 4 4-6 4 3" />
+                </svg>
+                <p className="text-sm">Completa i task giornalieri per registrare il primo punto</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={progressHistory} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#6b7280"
+                    tick={{ fontSize: 12 }}
+                    tickFormatter={d => d.slice(5)}
+                  />
+                  <YAxis
+                    stroke="#6b7280"
+                    tick={{ fontSize: 12 }}
+                    domain={[0, 100]}
+                    tickFormatter={v => `${v}%`}
+                  />
+                  <Tooltip
+                    contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8 }}
+                    labelStyle={{ color: '#9ca3af', fontSize: 12 }}
+                    formatter={v => [`${v}%`, 'Avanzamento']}
+                  />
+                  <ReferenceLine y={100} stroke="#22c55e" strokeDasharray="4 4" label={{ value: 'Completato', fill: '#22c55e', fontSize: 11 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="progress"
+                    stroke="#3b82f6"
+                    strokeWidth={2.5}
+                    dot={{ fill: '#3b82f6', r: 4 }}
+                    activeDot={{ r: 6, fill: '#60a5fa' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          {progressHistory.length > 0 && (
+            <div className="grid grid-cols-3 gap-4">
+              <div className="card text-center">
+                <p className="text-gray-400 text-xs uppercase tracking-wide">Inizio</p>
+                <p className="text-2xl font-bold text-white mt-1">{progressHistory[0].progress}%</p>
+                <p className="text-gray-500 text-xs mt-1">{progressHistory[0].date}</p>
+              </div>
+              <div className="card text-center">
+                <p className="text-gray-400 text-xs uppercase tracking-wide">Attuale</p>
+                <p className="text-2xl font-bold text-blue-400 mt-1">
+                  {progressHistory[progressHistory.length - 1].progress}%
+                </p>
+                <p className="text-gray-500 text-xs mt-1">{progressHistory[progressHistory.length - 1].date}</p>
+              </div>
+              <div className="card text-center">
+                <p className="text-gray-400 text-xs uppercase tracking-wide">Variazione totale</p>
+                <p className={`text-2xl font-bold mt-1 ${
+                  progressHistory[progressHistory.length - 1].progress - progressHistory[0].progress >= 0
+                    ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {progressHistory[progressHistory.length - 1].progress - progressHistory[0].progress >= 0 ? '+' : ''}
+                  {progressHistory[progressHistory.length - 1].progress - progressHistory[0].progress}%
+                </p>
+                <p className="text-gray-500 text-xs mt-1">dal primo rilevamento</p>
+              </div>
             </div>
           )}
         </div>

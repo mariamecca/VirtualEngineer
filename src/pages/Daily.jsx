@@ -51,6 +51,7 @@ export default function Daily() {
     const newProgress = Math.round((completed / total) * 100)
     try {
       await projectsAPI.update(currentProject.id, { progress: newProgress })
+      await reportsAPI.saveSnapshot(currentProject.id, selectedDate, newProgress)
     } catch { }
   }
 
