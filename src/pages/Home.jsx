@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { useEffect, useState } from 'react'
 import { projectsAPI } from '../utils/api'
@@ -17,6 +17,14 @@ export default function Home() {
       .finally(() => setLoading(false))
   }, [])
 
+  const today = new Date().toISOString().slice(0, 10)
+  const avgProgress = serverProjects.length
+    ? Math.round(serverProjects.reduce((s, p) => s + (p.progress || 0), 0) / serverProjects.length)
+    : 0
+  const overdueProjects = serverProjects.filter(p => p.deadline && p.deadline < today && (p.progress || 0) < 100)
+  const completedProjects = serverProjects.filter(p => (p.progress || 0) === 100)
+  const totalBudget = serverProjects.reduce((s, p) => s + (p.budget || 0), 0)
+
   return (
     <div className="p-8">
       <div className="max-w-5xl mx-auto">
@@ -24,6 +32,44 @@ export default function Home() {
           <h1 className="text-3xl font-bold text-white">Dashboard</h1>
           <p className="text-gray-400 mt-1">Gestisci i tuoi cantieri con l'aiuto dell'intelligenza artificiale</p>
         </div>
+
+        {/* Stats row */}
+        {serverProjects.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="card text-center py-3">
+              <p className="text-gray-400 text-xs uppercase tracking-wide">Cantieri</p>
+              <p className="text-2xl font-bold text-white mt-1">{serverProjects.length}</p>
+            </div>
+            <div className="card text-center py-3">
+              <p className="text-gray-400 text-xs uppercase tracking-wide">Avanz. medio</p>
+              <p className="text-2xl font-bold text-blue-400 mt-1">{avgProgress}%</p>
+            </div>
+            <div className="card text-center py-3">
+              <p className="text-gray-400 text-xs uppercase tracking-wide">Budget totale</p>
+              <p className="text-xl font-bold text-amber-400 mt-1">€{totalBudget.toLocaleString()}</p>
+            </div>
+            <div className={`card text-center py-3 ${overdueProjects.length > 0 ? 'border-red-800' : ''}`}>
+              <p className="text-gray-400 text-xs uppercase tracking-wide">In ritardo</p>
+              <p className={`text-2xl font-bold mt-1 ${overdueProjects.length > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                {overdueProjects.length}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {overdueProjects.length > 0 && (
+          <div className="mb-5 p-4 rounded-xl bg-red-950/40 border border-red-800 flex items-start gap-3">
+            <ExclamationTriangleIcon className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-red-300 font-medium text-sm">
+                {overdueProjects.length} {overdueProjects.length === 1 ? 'cantiere è in ritardo' : 'cantieri sono in ritardo'}
+              </p>
+              <p className="text-red-400/70 text-xs mt-0.5">
+                {overdueProjects.map(p => p.name).join(' · ')}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Link to="/onboarding" className="card hover:border-blue-500 transition-colors cursor-pointer group">
@@ -79,9 +125,19 @@ export default function Home() {
                       style={{ width: `${project.progress || 0}%` }}
                     />
                   </div>
-                  <div className="flex gap-4 mt-4 text-sm">
+                  <div className="flex gap-4 mt-4 text-sm flex-wrap items-center">
                     <span className="text-gray-400">Budget: <span className="text-white">€{project.budget?.toLocaleString()}</span></span>
-                    <span className="text-gray-400">Scadenza: <span className="text-white">{project.deadline}</span></span>
+                    <span className="text-gray-400">Scadenza: <span className={`${project.deadline && project.deadline < today && (project.progress || 0) < 100 ? 'text-red-400' : 'text-white'}`}>{project.deadline || '—'}</span></span>
+                    {(project.progress || 0) === 100 && (
+                      <span className="text-xs bg-green-900/50 text-green-400 border border-green-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <CheckBadgeIcon className="w-3.5 h-3.5" /> Completato
+                      </span>
+                    )}
+                    {project.deadline && project.deadline < today && (project.progress || 0) < 100 && (
+                      <span className="text-xs bg-red-900/50 text-red-400 border border-red-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <ExclamationTriangleIcon className="w-3.5 h-3.5" /> Scaduto
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
