@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 import { tasksAPI, aiAPI, reportsAPI, projectsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
@@ -20,6 +20,7 @@ export default function Daily() {
   const [newTaskPriority, setNewTaskPriority] = useState('media')
   const [addingTask, setAddingTask] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [filter, setFilter] = useState('tutte')
 
   useEffect(() => {
     if (currentProject) {
@@ -156,6 +157,20 @@ export default function Daily() {
   const completedCount = tasks.filter(t => t.completed).length
   const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0
 
+  const FILTERS = [
+    { key: 'tutte', label: 'Tutte' },
+    { key: 'da_fare', label: 'Da fare' },
+    { key: 'completate', label: 'Completate' },
+    { key: 'alta', label: 'Alta priorità' },
+  ]
+
+  const filteredTasks = tasks.filter(t => {
+    if (filter === 'da_fare') return !t.completed
+    if (filter === 'completate') return t.completed
+    if (filter === 'alta') return t.priority === 'alta'
+    return true
+  })
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       {/* Header con navigazione date */}
@@ -199,6 +214,28 @@ export default function Daily() {
 
       {tasks.length > 0 && (
         <>
+          {/* Filtri */}
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <FunnelIcon className="w-4 h-4 text-gray-500" />
+            {FILTERS.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                  filter === f.key
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
+                }`}
+              >
+                {f.label}
+                {f.key === 'tutte' && ` (${tasks.length})`}
+                {f.key === 'da_fare' && ` (${tasks.filter(t => !t.completed).length})`}
+                {f.key === 'completate' && ` (${tasks.filter(t => t.completed).length})`}
+                {f.key === 'alta' && ` (${tasks.filter(t => t.priority === 'alta').length})`}
+              </button>
+            ))}
+          </div>
+
           {/* Barra progresso */}
           <div className="card mb-6">
             <div className="flex items-center justify-between mb-3">
@@ -215,7 +252,10 @@ export default function Daily() {
 
           {/* Lista task */}
           <div className="space-y-3 mb-4">
-            {tasks.map(task => (
+            {filteredTasks.length === 0 && (
+              <p className="text-gray-500 text-sm text-center py-4">Nessuna attività per questo filtro</p>
+            )}
+            {filteredTasks.map(task => (
               <div
                 key={task.id}
                 onClick={() => toggleTask(task)}
