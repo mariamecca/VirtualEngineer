@@ -23,6 +23,10 @@ def get_progress(project_id: int, db: Session = Depends(get_db)):
 def get_daily_report(project_id: int, date: str = Query(...), db: Session = Depends(get_db)):
     return db.query(Report).filter(Report.project_id == project_id, Report.date == date).first()
 
+@router.get("/all/{project_id}")
+def get_all_reports(project_id: int, db: Session = Depends(get_db)):
+    return db.query(Report).filter(Report.project_id == project_id).order_by(Report.date.desc()).all()
+
 
 class SnapshotRequest(BaseModel):
     project_id: int

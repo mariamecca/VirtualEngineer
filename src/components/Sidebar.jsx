@@ -6,7 +6,8 @@ import {
   ChartBarIcon,
   Cog6ToothIcon,
   WrenchScrewdriverIcon,
-  RectangleGroupIcon
+  RectangleGroupIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 
@@ -89,10 +90,42 @@ export default function Sidebar() {
             WBS
           </NavLink>
         )}
+
+        {currentProject && (
+          <NavLink
+            to="/calendar"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium ${
+                isActive
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`
+            }
+          >
+            <ChartBarIcon className="w-5 h-5" />
+            Calendario
+          </NavLink>
+        )}
+
+        {currentProject && (
+          <NavLink
+            to="/reports"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium ${
+                isActive
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`
+            }
+          >
+            <DocumentTextIcon className="w-5 h-5" />
+            Resoconti
+          </NavLink>
+        )}
       </nav>
 
       <div className="p-4 border-t border-gray-800">
-        <p className="text-xs text-gray-600 text-center">VirtualEngineer v1.0.0</p>
+        <p className="text-xs text-gray-600 text-center">VirtualEngineer v1.1.0</p>
       </div>
     </aside>
   )

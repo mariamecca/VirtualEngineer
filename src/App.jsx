@@ -7,6 +7,8 @@ import Daily from './pages/Daily'
 import Settings from './pages/Settings'
 import Onboarding from './pages/Onboarding'
 import WBS from './pages/WBS'
+import Reports from './pages/Reports'
+import Calendar from './pages/Calendar'
 import { useProjectStore } from './store/projectStore'
 
 export default function App() {
@@ -23,6 +25,8 @@ export default function App() {
           <Route path="/project/:id" element={<Project />} />
           <Route path="/daily" element={<Daily />} />
           <Route path="/wbs" element={<WBS />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/calendar" element={<Calendar />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

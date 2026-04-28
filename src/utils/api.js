@@ -17,7 +17,8 @@ export const tasksAPI = {
   getDaily: (projectId, date) => api.get(`/tasks/daily/${projectId}?date=${date}`),
   updateTask: (taskId, data) => api.put(`/tasks/${taskId}`, data),
   deleteTask: (taskId) => api.delete(`/tasks/${taskId}`),
-  addTask: (data) => api.post('/tasks', data)
+  addTask: (data) => api.post('/tasks', data),
+  getCalendar: (projectId) => api.get(`/tasks/calendar/${projectId}`)
 }
 
 export const aiAPI = {
@@ -54,7 +55,8 @@ export const reportsAPI = {
   getProgress: (projectId) => api.get(`/reports/progress/${projectId}`),
   getDaily: (projectId, date) => api.get(`/reports/daily/${projectId}?date=${date}`),
   saveSnapshot: (projectId, date, progress) => api.post('/reports/progress-snapshot', { project_id: projectId, date, progress }),
-  getProgressHistory: (projectId) => api.get(`/reports/progress-history/${projectId}`)
+  getProgressHistory: (projectId) => api.get(`/reports/progress-history/${projectId}`),
+  getAll: (projectId) => api.get(`/reports/all/${projectId}`)
 }
 
 export default api

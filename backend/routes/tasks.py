@@ -20,6 +20,17 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
 
+@router.get("/calendar/{project_id}")
+def get_calendar_stats(project_id: int, db: Session = Depends(get_db)):
+    tasks = db.query(Task).filter(Task.project_id == project_id).all()
+    from collections import defaultdict
+    stats = defaultdict(lambda: {"total": 0, "completed": 0})
+    for task in tasks:
+        stats[task.date]["total"] += 1
+        if task.completed:
+            stats[task.date]["completed"] += 1
+    return [{"date": d, "total": v["total"], "completed": v["completed"]} for d, v in sorted(stats.items())]
+
 @router.get("/daily/{project_id}")
 def get_daily_tasks(project_id: int, date: str = Query(...), db: Session = Depends(get_db)):
     return db.query(Task).filter(Task.project_id == project_id, Task.date == date).all()
