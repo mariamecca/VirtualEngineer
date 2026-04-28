@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 import { tasksAPI, aiAPI, reportsAPI, projectsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
@@ -114,6 +114,19 @@ export default function Daily() {
       setReport(res.data)
     } catch { toast.error('Errore nel report') }
     finally { setReportLoading(false) }
+  }
+
+  const copyTaskList = () => {
+    const dateLabel = format(parseISO(selectedDate), 'd MMMM yyyy', { locale: it })
+    const lines = [`Attività del ${dateLabel} — ${currentProject.name}`, '']
+    tasks.forEach(t => {
+      const check = t.completed ? '✓' : '○'
+      const prio = t.priority === 'alta' ? ' [ALTA]' : ''
+      lines.push(`${check} ${t.title}${prio}`)
+    })
+    lines.push('', `Completate: ${completedCount}/${tasks.length} (${progress}%)`)
+    navigator.clipboard.writeText(lines.join('\n'))
+    toast.success('Lista copiata negli appunti')
   }
 
   const exportReport = () => {
@@ -369,6 +382,10 @@ export default function Daily() {
       {/* Resoconto */}
       {tasks.length > 0 && (
         <div className="flex justify-end gap-2 mb-6">
+          <button onClick={copyTaskList} className="btn-secondary flex items-center gap-2">
+            <ClipboardDocumentIcon className="w-4 h-4" />
+            Copia lista
+          </button>
           {(report || tasks.length > 0) && (
             <button onClick={exportReport} className="btn-secondary flex items-center gap-2">
               <ArrowDownTrayIcon className="w-4 h-4" />
