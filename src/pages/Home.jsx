@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { useEffect, useState } from 'react'
 import { projectsAPI } from '../utils/api'
@@ -9,6 +9,7 @@ export default function Home() {
   const { projects, setCurrentProject, currentProject } = useProjectStore()
   const [serverProjects, setServerProjects] = useState([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     projectsAPI.getAll()
@@ -18,6 +19,12 @@ export default function Home() {
   }, [])
 
   const today = new Date().toISOString().slice(0, 10)
+  const filteredProjects = search.trim()
+    ? serverProjects.filter(p =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.location || '').toLowerCase().includes(search.toLowerCase())
+      )
+    : serverProjects
   const avgProgress = serverProjects.length
     ? Math.round(serverProjects.reduce((s, p) => s + (p.progress || 0), 0) / serverProjects.length)
     : 0
@@ -99,9 +106,23 @@ export default function Home() {
 
         {serverProjects.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold text-white mb-4">I tuoi cantieri</h2>
+            <div className="flex items-center justify-between mb-4 gap-4">
+              <h2 className="text-xl font-semibold text-white">I tuoi cantieri</h2>
+              <div className="relative">
+                <MagnifyingGlassIcon className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  className="input pl-9 py-1.5 text-sm w-56"
+                  placeholder="Cerca per nome o luogo..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+            </div>
+            {filteredProjects.length === 0 && (
+              <p className="text-gray-500 text-sm py-6 text-center">Nessun cantiere trovato per "{search}"</p>
+            )}
             <div className="grid gap-4">
-              {serverProjects.map(project => (
+              {filteredProjects.map(project => (
                 <div
                   key={project.id}
                   onClick={() => setCurrentProject(project)}
