@@ -10,6 +10,8 @@ import {
   DocumentTextIcon
 } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
+import { useEffect, useState } from 'react'
+import { projectsAPI } from '../utils/api'
 
 const navItems = [
   { to: '/', icon: HomeIcon, label: 'Dashboard' },
@@ -19,6 +21,17 @@ const navItems = [
 
 export default function Sidebar() {
   const { currentProject } = useProjectStore()
+  const [overdueCount, setOverdueCount] = useState(0)
+
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    projectsAPI.getAll()
+      .then(res => {
+        const count = res.data.filter(p => p.deadline && p.deadline < today && (p.progress || 0) < 100).length
+        setOverdueCount(count)
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
@@ -55,7 +68,12 @@ export default function Sidebar() {
             }
           >
             <Icon className="w-5 h-5" />
-            {label}
+            <span className="flex-1">{label}</span>
+            {to === '/' && overdueCount > 0 && (
+              <span className="bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
+                {overdueCount}
+              </span>
+            )}
           </NavLink>
         ))}
 
