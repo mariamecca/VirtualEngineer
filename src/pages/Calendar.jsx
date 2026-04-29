@@ -101,9 +101,19 @@ export default function Calendar() {
           >
             <ChevronLeftIcon className="w-5 h-5" />
           </button>
-          <h2 className="text-lg font-semibold text-white capitalize">
-            {format(currentMonth, 'MMMM yyyy', { locale: it })}
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-semibold text-white capitalize">
+              {format(currentMonth, 'MMMM yyyy', { locale: it })}
+            </h2>
+            {format(currentMonth, 'yyyy-MM') !== format(new Date(), 'yyyy-MM') && (
+              <button
+                onClick={() => setCurrentMonth(new Date())}
+                className="text-xs text-blue-400 hover:text-blue-300 underline"
+              >
+                Oggi
+              </button>
+            )}
+          </div>
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
             className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
