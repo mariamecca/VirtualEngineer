@@ -21,6 +21,7 @@ export default function Daily() {
   const [addingTask, setAddingTask] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
   const [filter, setFilter] = useState('tutte')
+  const [sortByPriority, setSortByPriority] = useState(false)
 
   useEffect(() => {
     if (currentProject) {
@@ -177,12 +178,19 @@ export default function Daily() {
     { key: 'alta', label: 'Alta priorità' },
   ]
 
-  const filteredTasks = tasks.filter(t => {
-    if (filter === 'da_fare') return !t.completed
-    if (filter === 'completate') return t.completed
-    if (filter === 'alta') return t.priority === 'alta'
-    return true
-  })
+  const PRIORITY_ORDER = { alta: 0, media: 1, bassa: 2 }
+
+  const filteredTasks = tasks
+    .filter(t => {
+      if (filter === 'da_fare') return !t.completed
+      if (filter === 'completate') return t.completed
+      if (filter === 'alta') return t.priority === 'alta'
+      return true
+    })
+    .sort((a, b) => {
+      if (!sortByPriority) return 0
+      return (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1)
+    })
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
@@ -227,7 +235,7 @@ export default function Daily() {
 
       {tasks.length > 0 && (
         <>
-          {/* Filtri */}
+          {/* Filtri + ordinamento */}
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <FunnelIcon className="w-4 h-4 text-gray-500" />
             {FILTERS.map(f => (
@@ -247,6 +255,18 @@ export default function Daily() {
                 {f.key === 'alta' && ` (${tasks.filter(t => t.priority === 'alta').length})`}
               </button>
             ))}
+            <div className="ml-auto">
+              <button
+                onClick={() => setSortByPriority(v => !v)}
+                className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                  sortByPriority
+                    ? 'bg-amber-700/40 border-amber-600 text-amber-300'
+                    : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
+                }`}
+              >
+                Ordina per priorità
+              </button>
+            </div>
           </div>
 
           {/* Barra progresso */}
