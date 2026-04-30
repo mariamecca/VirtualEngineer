@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon, MagnifyingGlassIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { useEffect, useState } from 'react'
 import { projectsAPI } from '../utils/api'
@@ -10,6 +10,21 @@ export default function Home() {
   const [serverProjects, setServerProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+
+  const deleteProject = async (e, id) => {
+    e.stopPropagation()
+    try {
+      await projectsAPI.delete(id)
+      setServerProjects(prev => prev.filter(p => p.id !== id))
+      if (currentProject?.id === id) setCurrentProject(null)
+      toast.success('Cantiere eliminato')
+    } catch {
+      toast.error('Errore nell\'eliminazione')
+    } finally {
+      setConfirmDeleteId(null)
+    }
+  }
 
   useEffect(() => {
     projectsAPI.getAll()
@@ -135,9 +150,31 @@ export default function Home() {
                       <h3 className="font-semibold text-white">{project.name}</h3>
                       <p className="text-gray-400 text-sm mt-1">{project.location}</p>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm text-gray-400">Completamento</div>
-                      <div className="text-2xl font-bold text-blue-400">{project.progress || 0}%</div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="text-sm text-gray-400">Completamento</div>
+                        <div className="text-2xl font-bold text-blue-400">{project.progress || 0}%</div>
+                      </div>
+                      {confirmDeleteId === project.id ? (
+                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                          <span className="text-xs text-gray-400">Sicuro?</span>
+                          <button
+                            onClick={e => deleteProject(e, project.id)}
+                            className="text-xs px-2 py-1 bg-red-700 hover:bg-red-600 text-white rounded"
+                          >Sì</button>
+                          <button
+                            onClick={e => { e.stopPropagation(); setConfirmDeleteId(null) }}
+                            className="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded"
+                          >No</button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={e => { e.stopPropagation(); setConfirmDeleteId(project.id) }}
+                          className="p-1.5 text-gray-600 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div className="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
