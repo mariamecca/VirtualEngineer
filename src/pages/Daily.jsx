@@ -22,6 +22,18 @@ export default function Daily() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [filter, setFilter] = useState('tutte')
   const [sortByPriority, setSortByPriority] = useState(false)
+  const [noteText, setNoteText] = useState('')
+
+  const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
+
+  useEffect(() => {
+    if (noteKey) setNoteText(localStorage.getItem(noteKey) || '')
+  }, [noteKey])
+
+  const saveNote = (val) => {
+    setNoteText(val)
+    if (noteKey) localStorage.setItem(noteKey, val)
+  }
 
   useEffect(() => {
     if (currentProject) {
@@ -396,6 +408,22 @@ export default function Daily() {
           <SparklesIcon className="w-16 h-16 text-gray-700 mx-auto mb-4" />
           <h3 className="text-gray-400 font-medium">Nessuna attività per questo giorno</h3>
           {isToday && <p className="text-gray-600 text-sm mt-1">Clicca "Genera piano AI" per iniziare</p>}
+        </div>
+      )}
+
+      {/* Nota rapida */}
+      {currentProject && (
+        <div className="mb-6">
+          <label className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2 block">
+            Nota del giorno
+          </label>
+          <textarea
+            className="input w-full text-sm resize-none"
+            rows={3}
+            placeholder="Annotazioni, osservazioni, problemi riscontrati..."
+            value={noteText}
+            onChange={e => saveNote(e.target.value)}
+          />
         </div>
       )}
 
