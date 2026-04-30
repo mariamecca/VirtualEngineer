@@ -49,6 +49,10 @@ export default function Reports() {
   }
 
   const grouped = groupByMonth(reports)
+  const monthCount = Object.keys(grouped).length
+  const busiestMonth = monthCount > 0
+    ? Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)[0]
+    : null
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
@@ -56,6 +60,30 @@ export default function Reports() {
         <h1 className="text-2xl font-bold text-white">Storico Resoconti</h1>
         <p className="text-gray-400 mt-1">{currentProject.name}</p>
       </div>
+
+      {reports.length > 0 && (
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="card text-center">
+            <p className="text-gray-400 text-xs uppercase tracking-wide">Resoconti totali</p>
+            <p className="text-2xl font-bold text-white mt-1">{reports.length}</p>
+          </div>
+          <div className="card text-center">
+            <p className="text-gray-400 text-xs uppercase tracking-wide">Mesi coperti</p>
+            <p className="text-2xl font-bold text-blue-400 mt-1">{monthCount}</p>
+          </div>
+          <div className="card text-center">
+            <p className="text-gray-400 text-xs uppercase tracking-wide">Mese più attivo</p>
+            <p className="text-lg font-bold text-amber-400 mt-1 capitalize">
+              {busiestMonth
+                ? format(parseISO(busiestMonth[0] + '-01'), 'MMM yyyy', { locale: it })
+                : '—'}
+            </p>
+            {busiestMonth && (
+              <p className="text-gray-500 text-xs mt-0.5">{busiestMonth[1].length} resoconti</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="text-center py-16 text-gray-500">Caricamento...</div>
