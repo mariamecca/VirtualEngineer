@@ -51,6 +51,15 @@ export default function Sidebar() {
         <div className="px-4 py-3 mx-4 mt-4 bg-gray-800 rounded-lg border border-gray-700">
           <p className="text-xs text-gray-400 uppercase tracking-wide">Cantiere attivo</p>
           <p className="text-white font-medium text-sm mt-0.5 truncate">{currentProject.name}</p>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-500 rounded-full transition-all"
+                style={{ width: `${currentProject.progress || 0}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-400 flex-shrink-0">{currentProject.progress || 0}%</span>
+          </div>
         </div>
       )}
 
