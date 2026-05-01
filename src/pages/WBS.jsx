@@ -4,7 +4,7 @@ import { useProjectStore } from '../store/projectStore'
 import {
   PlusIcon, TrashIcon, ChevronDownIcon, ChevronRightIcon,
   SparklesIcon, CheckCircleIcon, CalendarDaysIcon, CurrencyEuroIcon,
-  PencilIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon
+  PencilIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon, ArrowDownTrayIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -116,6 +116,32 @@ export default function WBS() {
     } catch { toast.error('Errore') }
   }
 
+  const exportCSV = () => {
+    const header = ['Codice', 'Titolo', 'Descrizione', 'Budget (€)', 'Inizio', 'Fine', 'Avanzamento (%)', 'WBS Padre']
+    const rows = items.map(i => {
+      const parent = items.find(p => p.id === i.parent_id)
+      return [
+        i.code,
+        i.title,
+        i.description || '',
+        i.budget || 0,
+        i.start_date || '',
+        i.end_date || '',
+        i.progress || 0,
+        parent ? parent.code : ''
+      ]
+    })
+    const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `wbs_${currentProject.name.replace(/\s+/g, '_')}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success('WBS esportata')
+  }
+
   const generateSchedule = async () => {
     setSchedulingLoading(true)
     try {
@@ -152,14 +178,22 @@ export default function WBS() {
           <h1 className="text-2xl font-bold text-white">WBS — Work Breakdown Structure</h1>
           <p className="text-gray-400 mt-1">{currentProject.name}</p>
         </div>
-        <button
-          onClick={generateSchedule}
-          disabled={schedulingLoading || items.length === 0}
-          className="btn-primary flex items-center gap-2"
-        >
-          <SparklesIcon className="w-4 h-4" />
-          {schedulingLoading ? 'Generazione...' : 'Pianifica con AI'}
-        </button>
+        <div className="flex items-center gap-2">
+          {items.length > 0 && (
+            <button onClick={exportCSV} className="btn-secondary flex items-center gap-2">
+              <ArrowDownTrayIcon className="w-4 h-4" />
+              Esporta CSV
+            </button>
+          )}
+          <button
+            onClick={generateSchedule}
+            disabled={schedulingLoading || items.length === 0}
+            className="btn-primary flex items-center gap-2"
+          >
+            <SparklesIcon className="w-4 h-4" />
+            {schedulingLoading ? 'Generazione...' : 'Pianifica con AI'}
+          </button>
+        </div>
       </div>
 
       {/* Alert scadenze superate */}
