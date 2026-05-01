@@ -34,6 +34,12 @@ export default function Home() {
   }, [])
 
   const today = new Date().toISOString().slice(0, 10)
+
+  const daysUntil = (deadline) => {
+    const diff = Math.ceil((new Date(deadline) - new Date(today)) / 86400000)
+    return diff
+  }
+
   const filteredProjects = search.trim()
     ? serverProjects.filter(p =>
         p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -196,6 +202,15 @@ export default function Home() {
                         <ExclamationTriangleIcon className="w-3.5 h-3.5" /> Scaduto
                       </span>
                     )}
+                    {project.deadline && project.deadline >= today && (project.progress || 0) < 100 && (() => {
+                      const d = daysUntil(project.deadline)
+                      const color = d <= 7 ? 'bg-red-900/40 text-red-400 border-red-800' : d <= 30 ? 'bg-amber-900/40 text-amber-400 border-amber-800' : 'bg-gray-800 text-gray-400 border-gray-700'
+                      return (
+                        <span className={`text-xs border px-2 py-0.5 rounded-full ${color}`}>
+                          {d === 0 ? 'Scade oggi' : `${d} giorn${d === 1 ? 'o' : 'i'} alla scadenza`}
+                        </span>
+                      )
+                    })()}
                   </div>
                 </div>
               ))}
