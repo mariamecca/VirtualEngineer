@@ -10,6 +10,7 @@ export default function Home() {
   const [serverProjects, setServerProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState('nome')
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   const deleteProject = async (e, id) => {
@@ -40,12 +41,16 @@ export default function Home() {
     return diff
   }
 
-  const filteredProjects = search.trim()
-    ? serverProjects.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.location || '').toLowerCase().includes(search.toLowerCase())
-      )
-    : serverProjects
+  const filteredProjects = serverProjects
+    .filter(p => !search.trim() ||
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.location || '').toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === 'scadenza') return (a.deadline || '9999') < (b.deadline || '9999') ? -1 : 1
+      if (sortBy === 'avanzamento') return (b.progress || 0) - (a.progress || 0)
+      return a.name.localeCompare(b.name)
+    })
   const avgProgress = serverProjects.length
     ? Math.round(serverProjects.reduce((s, p) => s + (p.progress || 0), 0) / serverProjects.length)
     : 0
@@ -127,16 +132,27 @@ export default function Home() {
 
         {serverProjects.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-4 gap-4">
+            <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
               <h2 className="text-xl font-semibold text-white">I tuoi cantieri</h2>
-              <div className="relative">
-                <MagnifyingGlassIcon className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  className="input pl-9 py-1.5 text-sm w-56"
-                  placeholder="Cerca per nome o luogo..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                />
+              <div className="flex items-center gap-2">
+                <select
+                  className="input py-1.5 text-sm"
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                >
+                  <option value="nome">Ordina: Nome A-Z</option>
+                  <option value="scadenza">Ordina: Scadenza</option>
+                  <option value="avanzamento">Ordina: Avanzamento</option>
+                </select>
+                <div className="relative">
+                  <MagnifyingGlassIcon className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    className="input pl-9 py-1.5 text-sm w-48"
+                    placeholder="Cerca..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
             {filteredProjects.length === 0 && (
