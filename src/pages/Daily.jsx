@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, addDays, subDays, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon, TrophyIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 import { tasksAPI, aiAPI, reportsAPI, projectsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
@@ -244,6 +244,16 @@ export default function Daily() {
           {tasks.length ? 'Rigenera piano AI' : 'Genera piano AI'}
         </button>
       </div>
+
+      {tasks.length > 0 && progress === 100 && (
+        <div className="mb-6 p-4 rounded-xl bg-green-950/50 border border-green-700 flex items-center gap-3">
+          <TrophyIcon className="w-6 h-6 text-green-400 flex-shrink-0" />
+          <div>
+            <p className="text-green-300 font-semibold">Giornata completata!</p>
+            <p className="text-green-500 text-sm mt-0.5">Tutti i task del giorno sono stati completati.</p>
+          </div>
+        </div>
+      )}
 
       {tasks.length > 0 && (
         <>
