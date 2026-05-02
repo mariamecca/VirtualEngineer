@@ -24,15 +24,31 @@ _saved = load_settings()
 if _saved.get("groq_api_key"):
     os.environ["GROQ_API_KEY"] = _saved["groq_api_key"]
 
+GROQ_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"]
+DEFAULT_MODEL = "llama-3.3-70b-versatile"
+
 class SettingsUpdate(BaseModel):
     groq_api_key: str
+    groq_model: Optional[str] = None
+
+from typing import Optional
 
 @router.get("")
 def get_settings():
-    return {"api_key_set": bool(os.getenv("GROQ_API_KEY"))}
+    s = load_settings()
+    return {
+        "api_key_set": bool(os.getenv("GROQ_API_KEY")),
+        "groq_model": s.get("groq_model", DEFAULT_MODEL),
+        "available_models": GROQ_MODELS
+    }
 
 @router.post("")
 def update_settings(data: SettingsUpdate):
     os.environ["GROQ_API_KEY"] = data.groq_api_key
-    save_settings({"groq_api_key": data.groq_api_key})
+    s = load_settings()
+    s["groq_api_key"] = data.groq_api_key
+    if data.groq_model and data.groq_model in GROQ_MODELS:
+        s["groq_model"] = data.groq_model
+        os.environ["GROQ_MODEL"] = data.groq_model
+    save_settings(s)
     return {"ok": True}

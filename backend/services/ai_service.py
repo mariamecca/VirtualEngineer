@@ -6,9 +6,9 @@ import io
 from groq import Groq
 
 class AIService:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
         self.client = Groq(api_key=api_key)
-        self.model = "llama-3.3-70b-versatile"
+        self.model = model
 
     def _chat(self, prompt: str, max_tokens: int = 2000) -> str:
         response = self.client.chat.completions.create(

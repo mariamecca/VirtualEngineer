@@ -37,7 +37,8 @@ def get_ai():
     key = os.getenv("GROQ_API_KEY", "")
     if not key:
         raise HTTPException(status_code=400, detail="API key non configurata. Vai in Impostazioni.")
-    return AIService(key)
+    model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    return AIService(key, model)
 
 @router.post("/daily-plan")
 async def generate_daily_plan(req: DailyPlanRequest, db: Session = Depends(get_db)):
