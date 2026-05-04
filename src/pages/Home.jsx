@@ -11,6 +11,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState('nome')
+  const [tab, setTab] = useState('attivi')
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   const deleteProject = async (e, id) => {
@@ -42,6 +43,7 @@ export default function Home() {
   }
 
   const filteredProjects = serverProjects
+    .filter(p => tab === 'completati' ? (p.progress || 0) === 100 : (p.progress || 0) < 100)
     .filter(p => !search.trim() ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       (p.location || '').toLowerCase().includes(search.toLowerCase())
@@ -133,7 +135,22 @@ export default function Home() {
         {serverProjects.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
-              <h2 className="text-xl font-semibold text-white">I tuoi cantieri</h2>
+              <div className="flex items-center gap-1 bg-gray-900 rounded-lg p-1">
+                {[
+                  { key: 'attivi', label: `Attivi (${serverProjects.filter(p => (p.progress || 0) < 100).length})` },
+                  { key: 'completati', label: `Completati (${completedProjects.length})` },
+                ].map(t => (
+                  <button
+                    key={t.key}
+                    onClick={() => setTab(t.key)}
+                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      tab === t.key ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
               <div className="flex items-center gap-2">
                 <select
                   className="input py-1.5 text-sm"
