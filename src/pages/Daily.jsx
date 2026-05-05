@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { format, addDays, subDays, parseISO } from 'date-fns'
+import { format, addDays, subDays, parseISO, eachDayOfInterval } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon, TrophyIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
@@ -21,6 +21,7 @@ export default function Daily() {
   const [addingTask, setAddingTask] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
   const [filter, setFilter] = useState('tutte')
+  const [weekStats, setWeekStats] = useState([])
   const [sortByPriority, setSortByPriority] = useState(false)
   const [noteText, setNoteText] = useState('')
 
@@ -41,6 +42,14 @@ export default function Daily() {
       loadReport()
     }
   }, [currentProject, selectedDate])
+
+  useEffect(() => {
+    if (currentProject) {
+      tasksAPI.getCalendar(currentProject.id)
+        .then(res => setWeekStats(res.data))
+        .catch(() => {})
+    }
+  }, [currentProject])
 
   const loadTasks = async () => {
     setLoading(true)
@@ -244,6 +253,32 @@ export default function Daily() {
           {tasks.length ? 'Rigenera piano AI' : 'Genera piano AI'}
         </button>
       </div>
+
+      {weekStats.length > 0 && currentProject && (() => {
+        const statsMap = weekStats.reduce((acc, s) => { acc[s.date] = s; return acc }, {})
+        const last7 = eachDayOfInterval({ start: subDays(new Date(), 6), end: new Date() })
+        return (
+          <div className="flex items-center gap-1.5 mb-6">
+            <span className="text-xs text-gray-600 mr-1">7 giorni:</span>
+            {last7.map(d => {
+              const ds = format(d, 'yyyy-MM-dd')
+              const s = statsMap[ds]
+              const isSelected = ds === selectedDate
+              const dot = s
+                ? s.completed === s.total ? 'bg-green-500' : s.completed > 0 ? 'bg-amber-500' : 'bg-red-600'
+                : 'bg-gray-700'
+              return (
+                <button
+                  key={ds}
+                  onClick={() => setSelectedDate(ds)}
+                  title={s ? `${s.completed}/${s.total}` : format(d, 'd MMM', { locale: it })}
+                  className={`w-5 h-5 rounded-full transition-all ${dot} ${isSelected ? 'ring-2 ring-white scale-125' : 'hover:scale-110'}`}
+                />
+              )
+            })}
+          </div>
+        )
+      })()}
 
       {tasks.length > 0 && progress === 100 && (
         <div className="mb-6 p-4 rounded-xl bg-green-950/50 border border-green-700 flex items-center gap-3">
