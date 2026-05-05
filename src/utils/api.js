@@ -56,7 +56,8 @@ export const reportsAPI = {
   getDaily: (projectId, date) => api.get(`/reports/daily/${projectId}?date=${date}`),
   saveSnapshot: (projectId, date, progress) => api.post('/reports/progress-snapshot', { project_id: projectId, date, progress }),
   getProgressHistory: (projectId) => api.get(`/reports/progress-history/${projectId}`),
-  getAll: (projectId) => api.get(`/reports/all/${projectId}`)
+  getAll: (projectId) => api.get(`/reports/all/${projectId}`),
+  delete: (reportId) => api.delete(`/reports/${reportId}`)
 }
 
 export default api

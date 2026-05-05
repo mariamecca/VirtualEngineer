@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { SparklesIcon, ChevronDownIcon, ChevronRightIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, ChevronDownIcon, ChevronRightIcon, DocumentTextIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { reportsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
 import toast from 'react-hot-toast'
@@ -29,6 +29,17 @@ export default function Reports() {
   }
 
   const toggle = (id) => setExpanded(p => ({ ...p, [id]: !p[id] }))
+
+  const deleteReport = async (e, id) => {
+    e.stopPropagation()
+    try {
+      await reportsAPI.delete(id)
+      setReports(prev => prev.filter(r => r.id !== id))
+      toast.success('Resoconto eliminato')
+    } catch {
+      toast.error('Errore nell\'eliminazione')
+    }
+  }
 
   const groupByMonth = (reports) => {
     const groups = {}
@@ -124,10 +135,18 @@ export default function Reports() {
                       )}
                     </div>
                   </div>
-                  {expanded[report.id]
-                    ? <ChevronDownIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                    : <ChevronRightIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  }
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {expanded[report.id]
+                      ? <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+                      : <ChevronRightIcon className="w-4 h-4 text-gray-500" />
+                    }
+                    <button
+                      onClick={e => deleteReport(e, report.id)}
+                      className="p-1 text-gray-600 hover:text-red-400 hover:bg-red-900/20 rounded transition-colors"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
                 </button>
 
                 {expanded[report.id] && (

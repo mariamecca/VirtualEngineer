@@ -27,6 +27,14 @@ def get_daily_report(project_id: int, date: str = Query(...), db: Session = Depe
 def get_all_reports(project_id: int, db: Session = Depends(get_db)):
     return db.query(Report).filter(Report.project_id == project_id).order_by(Report.date.desc()).all()
 
+@router.delete("/{report_id}")
+def delete_report(report_id: int, db: Session = Depends(get_db)):
+    r = db.query(Report).filter(Report.id == report_id).first()
+    if r:
+        db.delete(r)
+        db.commit()
+    return {"ok": True}
+
 
 class SnapshotRequest(BaseModel):
     project_id: int
