@@ -37,6 +37,13 @@ export default function Home() {
 
   const today = new Date().toISOString().slice(0, 10)
 
+  const greeting = () => {
+    const h = new Date().getHours()
+    if (h >= 5 && h < 12) return 'Buongiorno'
+    if (h >= 12 && h < 18) return 'Buon pomeriggio'
+    return 'Buonasera'
+  }
+
   const daysUntil = (deadline) => {
     const diff = Math.ceil((new Date(deadline) - new Date(today)) / 86400000)
     return diff
@@ -64,7 +71,7 @@ export default function Home() {
     <div className="p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-white">{greeting()}</h1>
           <p className="text-gray-400 mt-1">Gestisci i tuoi cantieri con l'aiuto dell'intelligenza artificiale</p>
         </div>
 
