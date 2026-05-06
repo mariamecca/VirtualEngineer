@@ -90,6 +90,30 @@ export default function Daily() {
     finally { setGenerating(false) }
   }
 
+  const markAllDone = async () => {
+    const incomplete = tasks.filter(t => !t.completed)
+    if (!incomplete.length) return
+    try {
+      await Promise.all(incomplete.map(t => tasksAPI.updateTask(t.id, { completed: true })))
+      const updated = tasks.map(t => ({ ...t, completed: true }))
+      setTasks(updated)
+      updateProjectProgress(updated)
+      toast.success('Tutte le attività completate')
+    } catch { toast.error('Errore nell\'aggiornamento') }
+  }
+
+  const resetAll = async () => {
+    const complete = tasks.filter(t => t.completed)
+    if (!complete.length) return
+    try {
+      await Promise.all(complete.map(t => tasksAPI.updateTask(t.id, { completed: false })))
+      const updated = tasks.map(t => ({ ...t, completed: false }))
+      setTasks(updated)
+      updateProjectProgress(updated)
+      toast.success('Attività reimpostate')
+    } catch { toast.error('Errore nell\'aggiornamento') }
+  }
+
   const toggleTask = async (task) => {
     try {
       await tasksAPI.updateTask(task.id, { completed: !task.completed })
@@ -312,7 +336,7 @@ export default function Daily() {
                 {f.key === 'alta' && ` (${tasks.filter(t => t.priority === 'alta').length})`}
               </button>
             ))}
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
               <button
                 onClick={() => setSortByPriority(v => !v)}
                 className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
@@ -323,6 +347,22 @@ export default function Daily() {
               >
                 Ordina per priorità
               </button>
+              {progress < 100 && (
+                <button
+                  onClick={markAllDone}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-green-700 text-green-400 hover:bg-green-900/30 transition-colors"
+                >
+                  Segna tutti
+                </button>
+              )}
+              {progress > 0 && (
+                <button
+                  onClick={resetAll}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-gray-700 text-gray-500 hover:border-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  Reimposta
+                </button>
+              )}
             </div>
           </div>
 
