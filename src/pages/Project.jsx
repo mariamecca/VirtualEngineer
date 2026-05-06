@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { projectsAPI, filesAPI, aiAPI, reportsAPI } from '../utils/api'
 import { useDropzone } from 'react-dropzone'
-import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon, PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import toast from 'react-hot-toast'
 
@@ -19,6 +19,8 @@ export default function Project() {
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
   const [progressHistory, setProgressHistory] = useState([])
+  const [editingPhase, setEditingPhase] = useState(false)
+  const [phaseInput, setPhaseInput] = useState('')
   const chatEndRef = useRef(null)
 
   useEffect(() => {
@@ -76,6 +78,14 @@ export default function Project() {
     } catch { toast.error('Errore AI') }
   }
 
+  const savePhase = async () => {
+    try {
+      const res = await projectsAPI.update(id, { current_phase: phaseInput.trim() })
+      setProject(res.data)
+      setEditingPhase(false)
+    } catch { toast.error('Errore nel salvataggio') }
+  }
+
   const saveEdit = async () => {
     setSavingEdit(true)
     try {
@@ -104,7 +114,34 @@ export default function Project() {
     <div className="p-8 max-w-6xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">{project.name}</h1>
-        <p className="text-gray-400 mt-1">{project.location} · Cliente: {project.client}</p>
+        <div className="flex items-center gap-3 mt-1 flex-wrap">
+          <p className="text-gray-400">{project.location} · Cliente: {project.client}</p>
+          {editingPhase ? (
+            <div className="flex items-center gap-1">
+              <input
+                className="input py-0.5 px-2 text-sm w-44"
+                value={phaseInput}
+                onChange={e => setPhaseInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') savePhase(); if (e.key === 'Escape') setEditingPhase(false) }}
+                autoFocus
+              />
+              <button onClick={savePhase} className="p-1 text-green-400 hover:text-green-300">
+                <CheckIcon className="w-4 h-4" />
+              </button>
+              <button onClick={() => setEditingPhase(false)} className="p-1 text-gray-500 hover:text-gray-300">
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setPhaseInput(project.current_phase || ''); setEditingPhase(true) }}
+              className="flex items-center gap-1.5 text-xs bg-amber-900/40 text-amber-400 border border-amber-800 px-2.5 py-1 rounded-full hover:bg-amber-900/60 transition-colors"
+            >
+              <PencilIcon className="w-3 h-3" />
+              {project.current_phase || 'Imposta fase'}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-4 mb-8">
