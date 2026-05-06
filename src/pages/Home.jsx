@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon, MagnifyingGlassIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon, MagnifyingGlassIcon, TrashIcon, CalendarDaysIcon } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { useEffect, useState } from 'react'
 import { projectsAPI } from '../utils/api'
@@ -66,6 +66,9 @@ export default function Home() {
   const overdueProjects = serverProjects.filter(p => p.deadline && p.deadline < today && (p.progress || 0) < 100)
   const completedProjects = serverProjects.filter(p => (p.progress || 0) === 100)
   const totalBudget = serverProjects.reduce((s, p) => s + (p.budget || 0), 0)
+  const nextDeadline = serverProjects
+    .filter(p => p.deadline && p.deadline >= today && (p.progress || 0) < 100)
+    .sort((a, b) => a.deadline.localeCompare(b.deadline))[0]
 
   return (
     <div className="p-8">
@@ -109,6 +112,20 @@ export default function Home() {
               <p className="text-red-400/70 text-xs mt-0.5">
                 {overdueProjects.map(p => p.name).join(' · ')}
               </p>
+            </div>
+          </div>
+        )}
+
+        {nextDeadline && (
+          <div className="mb-5 p-4 rounded-xl bg-blue-950/30 border border-blue-800 flex items-center gap-3">
+            <CalendarDaysIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-blue-300 font-medium text-sm">Prossima scadenza</p>
+              <p className="text-blue-400/70 text-xs mt-0.5">{nextDeadline.name}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-white font-bold">{nextDeadline.deadline}</p>
+              <p className="text-blue-400 text-xs">{daysUntil(nextDeadline.deadline)} giorni</p>
             </div>
           </div>
         )}
