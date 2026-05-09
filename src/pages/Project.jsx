@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { projectsAPI, filesAPI, aiAPI, reportsAPI } from '../utils/api'
 import { useDropzone } from 'react-dropzone'
-import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon, PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon, PencilIcon, CheckIcon, XMarkIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import toast from 'react-hot-toast'
 
@@ -76,6 +76,21 @@ export default function Project() {
       const res = await aiAPI.getOptimizations(id)
       setOptimizations(res.data)
     } catch { toast.error('Errore AI') }
+  }
+
+  const copySummary = () => {
+    const lines = [
+      `Progetto: ${project.name}`,
+      project.location ? `Luogo: ${project.location}` : null,
+      project.client ? `Cliente: ${project.client}` : null,
+      project.budget ? `Budget: €${project.budget.toLocaleString()}` : null,
+      project.deadline ? `Scadenza: ${project.deadline}` : null,
+      project.current_phase ? `Fase: ${project.current_phase}` : null,
+      `Avanzamento: ${project.progress || 0}%`,
+      project.description ? `\n${project.description}` : null,
+    ].filter(Boolean)
+    navigator.clipboard.writeText(lines.join('\n'))
+    toast.success('Riepilogo copiato')
   }
 
   const savePhase = async () => {
@@ -158,7 +173,8 @@ export default function Project() {
         ))}
       </div>
 
-      <div className="flex gap-1 mb-6 bg-gray-900 rounded-lg p-1 w-fit">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex gap-1 bg-gray-900 rounded-lg p-1 w-fit">
         {tabs.map(t => (
           <button
             key={t}
@@ -170,6 +186,11 @@ export default function Project() {
             {t}
           </button>
         ))}
+        </div>
+        <button onClick={copySummary} className="btn-secondary flex items-center gap-2 text-sm">
+          <ClipboardDocumentIcon className="w-4 h-4" />
+          Copia riepilogo
+        </button>
       </div>
 
       {tab === 'overview' && (
