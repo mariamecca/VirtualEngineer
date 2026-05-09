@@ -42,6 +42,23 @@ def get_settings():
         "available_models": GROQ_MODELS
     }
 
+@router.get("/test")
+def test_connection():
+    key = os.getenv("GROQ_API_KEY", "")
+    if not key:
+        return {"ok": False, "error": "API key non configurata"}
+    try:
+        from groq import Groq
+        model = os.getenv("GROQ_MODEL", DEFAULT_MODEL)
+        client = Groq(api_key=key)
+        client.chat.completions.create(
+            model=model, max_tokens=5,
+            messages=[{"role": "user", "content": "ping"}]
+        )
+        return {"ok": True, "model": model}
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:120]}
+
 @router.post("")
 def update_settings(data: SettingsUpdate):
     os.environ["GROQ_API_KEY"] = data.groq_api_key
