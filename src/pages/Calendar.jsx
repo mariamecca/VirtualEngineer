@@ -158,6 +158,23 @@ export default function Calendar() {
           })}
         </div>
 
+        {/* Stat mese corrente */}
+        {(() => {
+          const monthPrefix = format(currentMonth, 'yyyy-MM')
+          const monthDays = calendarStats.filter(s => s.date.startsWith(monthPrefix))
+          const monthCompleted = monthDays.filter(s => s.completed === s.total && s.total > 0).length
+          const monthTasks = monthDays.reduce((a, s) => a + s.total, 0)
+          const monthDone = monthDays.reduce((a, s) => a + s.completed, 0)
+          if (!monthDays.length) return null
+          return (
+            <div className="mt-4 pt-4 border-t border-gray-800 flex items-center gap-6 text-sm">
+              <span className="text-gray-500">Questo mese:</span>
+              <span className="text-green-400 font-medium">{monthCompleted} giorni completati al 100%</span>
+              <span className="text-gray-400">{monthDone}/{monthTasks} task</span>
+            </div>
+          )
+        })()}
+
         {/* Legenda */}
         <div className="flex items-center gap-6 mt-6 pt-4 border-t border-gray-800">
           <p className="text-xs text-gray-500">Legenda:</p>
