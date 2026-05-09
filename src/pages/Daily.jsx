@@ -51,6 +51,20 @@ export default function Daily() {
     }
   }, [currentProject])
 
+  useEffect(() => {
+    const handler = (e) => {
+      const tag = document.activeElement?.tagName.toLowerCase()
+      if (tag === 'input' || tag === 'textarea') return
+      if (e.key === 'a' && currentProject && !showAddForm) {
+        e.preventDefault()
+        setShowAddForm(true)
+      }
+      if (e.key === 'Escape') setShowAddForm(false)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [currentProject, showAddForm])
+
   const loadTasks = async () => {
     setLoading(true)
     try {
