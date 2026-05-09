@@ -162,6 +162,8 @@ export default function WBS() {
   const totalBudget = items.filter(i => !i.parent_id).reduce((s, i) => s + (i.budget || 0), 0)
   const avgProgress = items.length ? Math.round(items.reduce((s, i) => s + i.progress, 0) / items.length) : 0
   const overdueItems = items.filter(i => i.end_date && i.end_date < today && i.progress < 100)
+  const allChecklist = items.flatMap(i => i.checklist || [])
+  const checklistDone = allChecklist.filter(c => c.completed).length
 
   if (!currentProject) {
     return (
@@ -212,7 +214,7 @@ export default function WBS() {
       )}
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-4 gap-4 mb-6">
         <div className="card">
           <p className="text-gray-400 text-sm">Totale WBS</p>
           <p className="text-2xl font-bold text-white mt-1">{items.length}</p>
@@ -227,6 +229,16 @@ export default function WBS() {
           <div className="h-1.5 bg-gray-800 rounded-full mt-2">
             <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${avgProgress}%` }} />
           </div>
+        </div>
+        <div className="card">
+          <p className="text-gray-400 text-sm">Checklist completate</p>
+          <p className="text-2xl font-bold text-blue-400 mt-1">{checklistDone}/{allChecklist.length}</p>
+          {allChecklist.length > 0 && (
+            <div className="h-1.5 bg-gray-800 rounded-full mt-2">
+              <div className="h-full bg-blue-500 rounded-full transition-all"
+                style={{ width: `${Math.round(checklistDone / allChecklist.length * 100)}%` }} />
+            </div>
+          )}
         </div>
       </div>
 
