@@ -26,6 +26,7 @@ export default function Daily() {
   const [noteText, setNoteText] = useState('')
 
   const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
+  const [noteSaved, setNoteSaved] = useState(false)
 
   useEffect(() => {
     if (noteKey) setNoteText(localStorage.getItem(noteKey) || '')
@@ -33,7 +34,12 @@ export default function Daily() {
 
   const saveNote = (val) => {
     setNoteText(val)
-    if (noteKey) localStorage.setItem(noteKey, val)
+    if (noteKey) {
+      localStorage.setItem(noteKey, val)
+      setNoteSaved(true)
+      clearTimeout(window._noteSaveTimer)
+      window._noteSaveTimer = setTimeout(() => setNoteSaved(false), 1500)
+    }
   }
 
   useEffect(() => {
@@ -513,9 +519,14 @@ export default function Daily() {
       {/* Nota rapida */}
       {currentProject && (
         <div className="mb-6">
-          <label className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2 block">
-            Nota del giorno
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              Nota del giorno
+            </label>
+            <span className={`text-xs transition-opacity duration-300 ${noteSaved ? 'text-green-500 opacity-100' : 'opacity-0'}`}>
+              ✓ Salvato
+            </span>
+          </div>
           <textarea
             className="input w-full text-sm resize-none"
             rows={3}
