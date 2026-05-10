@@ -84,6 +84,14 @@ export default function WBS() {
     } catch { toast.error('Errore') }
   }
 
+  const completeWBS = async (id) => {
+    try {
+      const res = await wbsAPI.update(id, { progress: 100 })
+      setItems(prev => prev.map(i => i.id === id ? { ...res.data, checklist: i.checklist } : i))
+      toast.success('WBS completata al 100%')
+    } catch { toast.error('Errore') }
+  }
+
   const deleteWBS = async (id) => {
     try {
       await wbsAPI.delete(id)
@@ -336,6 +344,7 @@ export default function WBS() {
               onSaveEdit={saveEdit}
               onCancelEdit={() => setEditingId(null)}
               onDelete={deleteWBS}
+              onComplete={completeWBS}
               onToggleChecklist={toggleChecklist}
               onAddChecklist={addChecklistItem}
               onDeleteChecklist={deleteChecklistItem}
@@ -445,7 +454,7 @@ export default function WBS() {
 function WBSItem({
   item, children, allItems, colorClass, expanded, setExpanded,
   editingId, editForm, setEditForm, onStartEdit, onSaveEdit, onCancelEdit,
-  onDelete, onToggleChecklist, onAddChecklist, onDeleteChecklist,
+  onDelete, onComplete, onToggleChecklist, onAddChecklist, onDeleteChecklist,
   newChecklistInputs, setNewChecklistInputs
 }) {
   const isExpanded = expanded[item.id]
@@ -547,6 +556,15 @@ function WBSItem({
                 <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${item.progress}%` }} />
               </div>
             </div>
+            {item.progress < 100 && (
+              <button
+                onClick={() => onComplete(item.id)}
+                className="text-xs px-2 py-0.5 rounded border border-green-700 text-green-500 hover:bg-green-900/30 transition-colors"
+                title="Segna come completata al 100%"
+              >
+                Completa
+              </button>
+            )}
             <button onClick={() => onStartEdit(item)} className="text-gray-500 hover:text-blue-400 p-1">
               <PencilIcon className="w-4 h-4" />
             </button>
@@ -620,6 +638,7 @@ function WBSItem({
                   onSaveEdit={onSaveEdit}
                   onCancelEdit={onCancelEdit}
                   onDelete={onDelete}
+                  onComplete={onComplete}
                   onToggleChecklist={onToggleChecklist}
                   onAddChecklist={onAddChecklist}
                   onDeleteChecklist={onDeleteChecklist}
