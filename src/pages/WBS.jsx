@@ -4,7 +4,8 @@ import { useProjectStore } from '../store/projectStore'
 import {
   PlusIcon, TrashIcon, ChevronDownIcon, ChevronRightIcon,
   SparklesIcon, CheckCircleIcon, CalendarDaysIcon, CurrencyEuroIcon,
-  PencilIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon, ArrowDownTrayIcon
+  PencilIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon, ArrowDownTrayIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -27,6 +28,7 @@ export default function WBS() {
     code: '', title: '', description: '', budget: '', start_date: '', end_date: '', parent_id: ''
   })
   const [editForm, setEditForm] = useState({})
+  const [wbsSearch, setWbsSearch] = useState('')
 
   useEffect(() => {
     if (currentProject) load()
@@ -166,6 +168,9 @@ export default function WBS() {
 
   const today = new Date().toISOString().slice(0, 10)
   const rootItems = items.filter(i => !i.parent_id)
+  const filteredRootItems = wbsSearch
+    ? items.filter(i => i.title.toLowerCase().includes(wbsSearch.toLowerCase()) || i.code.toLowerCase().includes(wbsSearch.toLowerCase()))
+    : rootItems
   const childrenOf = (id) => items.filter(i => i.parent_id === id)
   const totalBudget = items.filter(i => !i.parent_id).reduce((s, i) => s + (i.budget || 0), 0)
   const avgProgress = items.length ? Math.round(items.reduce((s, i) => s + i.progress, 0) / items.length) : 0
@@ -265,10 +270,24 @@ export default function WBS() {
       {/* WBS Tab */}
       {tab === 'wbs' && (
         <div className="space-y-3">
-          <button onClick={() => setShowAddForm(v => !v)} className="btn-secondary flex items-center gap-2">
-            <PlusIcon className="w-4 h-4" />
-            Aggiungi WBS
-          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setShowAddForm(v => !v)} className="btn-secondary flex items-center gap-2">
+              <PlusIcon className="w-4 h-4" />
+              Aggiungi WBS
+            </button>
+            <div className="relative flex-1 max-w-xs">
+              <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+              <input
+                className="input pl-9 text-sm"
+                placeholder="Cerca per titolo o codice..."
+                value={wbsSearch}
+                onChange={e => setWbsSearch(e.target.value)}
+              />
+            </div>
+            {wbsSearch && (
+              <span className="text-xs text-gray-500">{filteredRootItems.length} risultati</span>
+            )}
+          </div>
 
           {showAddForm && (
             <div className="card space-y-3 border border-blue-700">
@@ -328,7 +347,7 @@ export default function WBS() {
             </div>
           )}
 
-          {rootItems.map((item, idx) => (
+          {filteredRootItems.map((item, idx) => (
             <WBSItem
               key={item.id}
               item={item}
