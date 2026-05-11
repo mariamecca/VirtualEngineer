@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, addDays, subDays, parseISO, eachDayOfInterval } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon, TrophyIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon, TrophyIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 import { tasksAPI, aiAPI, reportsAPI, projectsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
@@ -23,6 +23,7 @@ export default function Daily() {
   const [filter, setFilter] = useState('tutte')
   const [weekStats, setWeekStats] = useState([])
   const [sortByPriority, setSortByPriority] = useState(false)
+  const [taskSearch, setTaskSearch] = useState('')
   const [noteText, setNoteText] = useState('')
 
   const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
@@ -252,6 +253,7 @@ export default function Daily() {
       if (filter === 'alta') return t.priority === 'alta'
       return true
     })
+    .filter(t => !taskSearch || t.title.toLowerCase().includes(taskSearch.toLowerCase()))
     .sort((a, b) => {
       if (!sortByPriority) return 0
       return (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1)
@@ -384,6 +386,17 @@ export default function Daily() {
                 </button>
               )}
             </div>
+          </div>
+
+          {/* Ricerca task */}
+          <div className="relative mb-4">
+            <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+            <input
+              className="input pl-9 text-sm w-full"
+              placeholder="Cerca tra le attività del giorno..."
+              value={taskSearch}
+              onChange={e => setTaskSearch(e.target.value)}
+            />
           </div>
 
           {/* Barra progresso */}
