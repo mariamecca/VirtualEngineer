@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { projectsAPI, filesAPI, aiAPI, reportsAPI } from '../utils/api'
 import { useDropzone } from 'react-dropzone'
-import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon, PencilIcon, CheckIcon, XMarkIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon, PencilIcon, CheckIcon, XMarkIcon, ClipboardDocumentIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import toast from 'react-hot-toast'
 
@@ -53,6 +53,14 @@ export default function Project() {
       finally { setUploading(false) }
     }
   })
+
+  const deleteFile = async (fileId) => {
+    try {
+      await filesAPI.delete(fileId)
+      setFiles(prev => prev.filter(f => f.id !== fileId))
+      toast.success('File eliminato')
+    } catch { toast.error('Errore nell\'eliminazione') }
+  }
 
   const sendChat = async () => {
     if (!chatInput.trim() || chatLoading) return
@@ -398,6 +406,13 @@ export default function Project() {
                   <p className="text-white text-sm font-medium truncate">{file.name}</p>
                   <p className="text-gray-500 text-xs mt-0.5">{file.uploaded_at}</p>
                 </div>
+                <button
+                  onClick={() => deleteFile(file.id)}
+                  className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-900/20 transition-colors flex-shrink-0"
+                  title="Elimina file"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                </button>
               </div>
             ))}
           </div>

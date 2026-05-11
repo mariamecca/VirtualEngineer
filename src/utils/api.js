@@ -38,7 +38,8 @@ export const filesAPI = {
   upload: (projectId, formData) => api.post(`/files/upload/${projectId}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  getByProject: (projectId) => api.get(`/files/${projectId}`)
+  getByProject: (projectId) => api.get(`/files/${projectId}`),
+  delete: (fileId) => api.delete(`/files/${fileId}`)
 }
 
 export const wbsAPI = {

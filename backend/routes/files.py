@@ -31,3 +31,15 @@ async def upload_files(project_id: int, files: List[UploadFileType] = UploadFile
 @router.get("/{project_id}")
 def get_files(project_id: int, db: Session = Depends(get_db)):
     return db.query(File).filter(File.project_id == project_id).all()
+
+@router.delete("/{file_id}")
+def delete_file(file_id: int, db: Session = Depends(get_db)):
+    f = db.query(File).filter(File.id == file_id).first()
+    if not f:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="File non trovato")
+    if os.path.exists(f.path):
+        os.remove(f.path)
+    db.delete(f)
+    db.commit()
+    return {"ok": True}
