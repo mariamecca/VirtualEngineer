@@ -400,7 +400,7 @@ export default function Daily() {
           </div>
 
           {/* Barra progresso */}
-          <div className="card mb-6">
+          <div className="card mb-4">
             <div className="flex items-center justify-between mb-3">
               <span className="text-gray-400 text-sm">Progresso giornaliero</span>
               <span className="text-white font-bold">{completedCount}/{tasks.length} completati</span>
@@ -411,6 +411,24 @@ export default function Daily() {
                 style={{ width: `${progress}%` }}
               />
             </div>
+          </div>
+
+          {/* Riepilogo priorità */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            {[
+              { label: 'Alta priorità', key: 'alta', color: 'text-red-400', bg: 'bg-red-900/20 border-red-900' },
+              { label: 'Media priorità', key: 'media', color: 'text-amber-400', bg: 'bg-amber-900/20 border-amber-900' },
+              { label: 'Bassa priorità', key: 'bassa', color: 'text-gray-400', bg: 'bg-gray-800/40 border-gray-700' },
+            ].map(({ label, key, color, bg }) => {
+              const total = tasks.filter(t => t.priority === key).length
+              const done = tasks.filter(t => t.priority === key && t.completed).length
+              return (
+                <div key={key} className={`rounded-xl border p-3 ${bg}`}>
+                  <p className={`text-xs font-medium uppercase tracking-wide ${color}`}>{label}</p>
+                  <p className="text-white font-bold text-xl mt-1">{done}<span className="text-gray-500 text-sm font-normal">/{total}</span></p>
+                </div>
+              )
+            })}
           </div>
 
           {/* Lista task */}
