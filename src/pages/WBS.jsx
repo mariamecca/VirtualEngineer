@@ -166,6 +166,13 @@ export default function WBS() {
     }
   }
 
+  const expandAll = () => {
+    const all = {}
+    items.forEach(i => { all[i.id] = true })
+    setExpanded(all)
+  }
+  const collapseAll = () => setExpanded({})
+
   const today = new Date().toISOString().slice(0, 10)
   const rootItems = items.filter(i => !i.parent_id)
   const filteredRootItems = wbsSearch
@@ -286,6 +293,16 @@ export default function WBS() {
             </div>
             {wbsSearch && (
               <span className="text-xs text-gray-500">{filteredRootItems.length} risultati</span>
+            )}
+            {items.length > 0 && (
+              <div className="ml-auto flex items-center gap-2">
+                <button onClick={expandAll} className="text-xs px-3 py-1.5 rounded-lg border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors">
+                  Espandi tutti
+                </button>
+                <button onClick={collapseAll} className="text-xs px-3 py-1.5 rounded-lg border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white transition-colors">
+                  Chiudi tutti
+                </button>
+              </div>
             )}
           </div>
 
