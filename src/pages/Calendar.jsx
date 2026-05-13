@@ -60,6 +60,23 @@ export default function Calendar() {
   const totalTasks = calendarStats.reduce((s, d) => s + d.total, 0)
   const completedTasks = calendarStats.reduce((s, d) => s + d.completed, 0)
 
+  const bestStreak = (() => {
+    const sorted = [...calendarStats]
+      .filter(s => s.total > 0 && s.completed === s.total)
+      .map(s => s.date)
+      .sort()
+    let max = 0, cur = 0, prev = null
+    for (const d of sorted) {
+      if (prev) {
+        const diff = (new Date(d) - new Date(prev)) / 86400000
+        cur = diff === 1 ? cur + 1 : 1
+      } else { cur = 1 }
+      if (cur > max) max = cur
+      prev = d
+    }
+    return max
+  })()
+
   if (!currentProject) {
     return (
       <div className="p-8 text-center text-gray-400">
@@ -76,7 +93,7 @@ export default function Calendar() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-4 gap-4 mb-8">
         <div className="card text-center">
           <p className="text-gray-400 text-xs uppercase tracking-wide">Giorni con attività</p>
           <p className="text-2xl font-bold text-white mt-1">{totalDaysWithTasks}</p>
@@ -88,6 +105,10 @@ export default function Calendar() {
         <div className="card text-center">
           <p className="text-gray-400 text-xs uppercase tracking-wide">Task totali</p>
           <p className="text-2xl font-bold text-blue-400 mt-1">{completedTasks}/{totalTasks}</p>
+        </div>
+        <div className="card text-center">
+          <p className="text-gray-400 text-xs uppercase tracking-wide">Streak max</p>
+          <p className="text-2xl font-bold text-amber-400 mt-1">{bestStreak} <span className="text-sm font-normal text-gray-500">gg</span></p>
         </div>
       </div>
 
