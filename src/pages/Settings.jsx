@@ -94,6 +94,30 @@ export default function Settings() {
           </div>
         )}
       </div>
+      <div className="card space-y-3 mt-6">
+        <h2 className="font-semibold text-white">Informazioni app</h2>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-gray-500 text-xs uppercase tracking-wide">Versione</p>
+            <p className="text-white font-medium mt-1">v1.1.0</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs uppercase tracking-wide">Stack</p>
+            <p className="text-white font-medium mt-1">React + FastAPI + Electron</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs uppercase tracking-wide">AI Provider</p>
+            <p className="text-white font-medium mt-1">Groq Cloud</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs uppercase tracking-wide">Database</p>
+            <p className="text-white font-medium mt-1">SQLite (locale)</p>
+          </div>
+        </div>
+        <p className="text-gray-600 text-xs border-t border-gray-800 pt-3">
+          VirtualEngineer — Gestione intelligente dei cantieri edili con AI integrata.
+        </p>
+      </div>
     </div>
   )
 }
