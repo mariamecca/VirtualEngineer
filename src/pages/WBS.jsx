@@ -166,6 +166,14 @@ export default function WBS() {
     }
   }
 
+  const updateProgress = async (id, value) => {
+    const clamped = Math.max(0, Math.min(100, parseInt(value) || 0))
+    try {
+      const res = await wbsAPI.update(id, { progress: clamped })
+      setItems(prev => prev.map(i => i.id === id ? { ...res.data, checklist: i.checklist } : i))
+    } catch { toast.error('Errore aggiornamento avanzamento') }
+  }
+
   const expandAll = () => {
     const all = {}
     items.forEach(i => { all[i.id] = true })
@@ -381,6 +389,7 @@ export default function WBS() {
               onCancelEdit={() => setEditingId(null)}
               onDelete={deleteWBS}
               onComplete={completeWBS}
+              onProgressUpdate={updateProgress}
               onToggleChecklist={toggleChecklist}
               onAddChecklist={addChecklistItem}
               onDeleteChecklist={deleteChecklistItem}
@@ -490,7 +499,7 @@ export default function WBS() {
 function WBSItem({
   item, children, allItems, colorClass, expanded, setExpanded,
   editingId, editForm, setEditForm, onStartEdit, onSaveEdit, onCancelEdit,
-  onDelete, onComplete, onToggleChecklist, onAddChecklist, onDeleteChecklist,
+  onDelete, onComplete, onProgressUpdate, onToggleChecklist, onAddChecklist, onDeleteChecklist,
   newChecklistInputs, setNewChecklistInputs
 }) {
   const isExpanded = expanded[item.id]
@@ -498,6 +507,8 @@ function WBSItem({
   const hasChildren = children.length > 0
   const checkDone = item.checklist?.filter(c => c.completed).length || 0
   const checkTotal = item.checklist?.length || 0
+  const [editingProgress, setEditingProgress] = useState(false)
+  const [progressVal, setProgressVal] = useState(item.progress)
 
   return (
     <div className={`card border-l-4 ${colorClass} space-y-3`}>
@@ -587,7 +598,31 @@ function WBSItem({
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="text-right">
-              <span className="text-sm font-bold text-green-400">{item.progress}%</span>
+              {editingProgress ? (
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  className="w-16 text-sm font-bold text-green-400 bg-gray-800 border border-green-600 rounded px-1 text-right"
+                  value={progressVal}
+                  onChange={e => setProgressVal(e.target.value)}
+                  onBlur={() => { onProgressUpdate(item.id, progressVal); setEditingProgress(false) }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') { onProgressUpdate(item.id, progressVal); setEditingProgress(false) }
+                    if (e.key === 'Escape') { setProgressVal(item.progress); setEditingProgress(false) }
+                  }}
+                  autoFocus
+                  onClick={e => e.stopPropagation()}
+                />
+              ) : (
+                <span
+                  className="text-sm font-bold text-green-400 cursor-pointer hover:text-green-300"
+                  onClick={e => { e.stopPropagation(); setProgressVal(item.progress); setEditingProgress(true) }}
+                  title="Clicca per modificare"
+                >
+                  {item.progress}%
+                </span>
+              )}
               <div className="w-16 h-1.5 bg-gray-800 rounded-full mt-1">
                 <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${item.progress}%` }} />
               </div>
@@ -675,6 +710,7 @@ function WBSItem({
                   onCancelEdit={onCancelEdit}
                   onDelete={onDelete}
                   onComplete={onComplete}
+                  onProgressUpdate={onProgressUpdate}
                   onToggleChecklist={onToggleChecklist}
                   onAddChecklist={onAddChecklist}
                   onDeleteChecklist={onDeleteChecklist}
