@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon, MagnifyingGlassIcon, TrashIcon, CalendarDaysIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon, MagnifyingGlassIcon, TrashIcon, CalendarDaysIcon, Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { useEffect, useState } from 'react'
 import { projectsAPI } from '../utils/api'
@@ -13,6 +13,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState('nome')
   const [tab, setTab] = useState('attivi')
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [viewMode, setViewMode] = useState('list')
 
   const deleteProject = async (e, id) => {
     e.stopPropagation()
@@ -194,12 +195,28 @@ export default function Home() {
                     onChange={e => setSearch(e.target.value)}
                   />
                 </div>
+                <div className="flex items-center gap-1 bg-gray-900 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-1.5 rounded transition-colors ${viewMode === 'list' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'}`}
+                    title="Vista lista"
+                  >
+                    <ListBulletIcon className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1.5 rounded transition-colors ${viewMode === 'grid' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'}`}
+                    title="Vista griglia"
+                  >
+                    <Squares2X2Icon className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
             {filteredProjects.length === 0 && (
               <p className="text-gray-500 text-sm py-6 text-center">Nessun cantiere trovato per "{search}"</p>
             )}
-            <div className="grid gap-4">
+            <div className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4' : 'grid gap-4'}>
               {filteredProjects.map(project => (
                 <div
                   key={project.id}
