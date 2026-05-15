@@ -11,6 +11,7 @@ export default function Reports() {
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState({})
+  const [monthFilter, setMonthFilter] = useState('all')
 
   useEffect(() => {
     if (currentProject) loadReports()
@@ -61,8 +62,10 @@ export default function Reports() {
     )
   }
 
-  const grouped = groupByMonth(reports)
-  const monthCount = Object.keys(grouped).length
+  const allMonths = Object.keys(groupByMonth(reports)).sort((a, b) => b.localeCompare(a))
+  const filteredReports = monthFilter === 'all' ? reports : reports.filter(r => r.date.startsWith(monthFilter))
+  const grouped = groupByMonth(filteredReports)
+  const monthCount = Object.keys(groupByMonth(reports)).length
   const busiestMonth = monthCount > 0
     ? Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)[0]
     : null
@@ -75,7 +78,21 @@ export default function Reports() {
           <p className="text-gray-400 mt-1">{currentProject.name}</p>
         </div>
         {reports.length > 0 && (
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            {allMonths.length > 1 && (
+              <select
+                className="input py-1.5 text-sm"
+                value={monthFilter}
+                onChange={e => setMonthFilter(e.target.value)}
+              >
+                <option value="all">Tutti i mesi</option>
+                {allMonths.map(m => (
+                  <option key={m} value={m}>
+                    {format(parseISO(m + '-01'), 'MMMM yyyy', { locale: it })}
+                  </option>
+                ))}
+              </select>
+            )}
             <button onClick={expandAll} className="btn-secondary text-sm">Espandi tutti</button>
             <button onClick={collapseAll} className="btn-secondary text-sm">Comprimi tutti</button>
           </div>
