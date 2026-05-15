@@ -17,6 +17,7 @@ export default function Daily() {
   const [report, setReport] = useState(null)
   const [reportLoading, setReportLoading] = useState(false)
   const [newTaskTitle, setNewTaskTitle] = useState('')
+  const [newTaskDescription, setNewTaskDescription] = useState('')
   const [newTaskPriority, setNewTaskPriority] = useState('media')
   const [addingTask, setAddingTask] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -162,11 +163,13 @@ export default function Daily() {
       const res = await tasksAPI.addTask({
         project_id: currentProject.id,
         title: newTaskTitle.trim(),
+        description: newTaskDescription.trim() || null,
         date: selectedDate,
         priority: newTaskPriority
       })
       setTasks(prev => [...prev, res.data])
       setNewTaskTitle('')
+      setNewTaskDescription('')
       setNewTaskPriority('media')
       setShowAddForm(false)
       toast.success('Attività aggiunta')
@@ -494,11 +497,18 @@ export default function Daily() {
               <div className="space-y-3">
                 <input
                   className="input w-full"
-                  placeholder="Descrivi l'attività..."
+                  placeholder="Titolo attività..."
                   value={newTaskTitle}
                   onChange={e => setNewTaskTitle(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addTask()}
                   autoFocus
+                />
+                <textarea
+                  className="input w-full text-sm resize-none"
+                  rows={2}
+                  placeholder="Note o dettagli (opzionale)..."
+                  value={newTaskDescription}
+                  onChange={e => setNewTaskDescription(e.target.value)}
                 />
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400 text-sm">Priorità:</span>
@@ -521,7 +531,7 @@ export default function Daily() {
                   <button onClick={addTask} disabled={addingTask} className="btn-primary text-sm">
                     {addingTask ? '...' : 'Aggiungi'}
                   </button>
-                  <button onClick={() => { setShowAddForm(false); setNewTaskTitle(''); setNewTaskPriority('media') }} className="btn-secondary text-sm">
+                  <button onClick={() => { setShowAddForm(false); setNewTaskTitle(''); setNewTaskDescription(''); setNewTaskPriority('media') }} className="btn-secondary text-sm">
                     Annulla
                   </button>
                 </div>
