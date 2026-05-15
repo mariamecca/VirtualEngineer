@@ -573,6 +573,15 @@ function WBSItem({
                     <ExclamationTriangleIcon className="w-3 h-3" /> In ritardo
                   </span>
                 )}
+                {item.end_date && item.end_date >= today && item.progress < 100 && (() => {
+                  const daysLeft = Math.ceil((new Date(item.end_date) - new Date(today)) / 86400000)
+                  if (daysLeft <= 7) return (
+                    <span className="text-xs bg-amber-900/50 text-amber-400 border border-amber-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <ExclamationTriangleIcon className="w-3 h-3" /> Scade in {daysLeft}gg
+                    </span>
+                  )
+                  return null
+                })()}
                 {checkTotal > 0 && (
                   <span className="text-xs text-gray-500">{checkDone}/{checkTotal} voci</span>
                 )}
