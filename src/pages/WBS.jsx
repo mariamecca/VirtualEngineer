@@ -5,7 +5,7 @@ import {
   PlusIcon, TrashIcon, ChevronDownIcon, ChevronRightIcon,
   SparklesIcon, CheckCircleIcon, CalendarDaysIcon, CurrencyEuroIcon,
   PencilIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon, ArrowDownTrayIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon, DocumentDuplicateIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -84,6 +84,23 @@ export default function WBS() {
       setEditingId(null)
       toast.success('Salvato')
     } catch { toast.error('Errore') }
+  }
+
+  const duplicateWBS = async (item) => {
+    try {
+      const res = await wbsAPI.create({
+        project_id: currentProject.id,
+        parent_id: item.parent_id || null,
+        code: item.code + '-copia',
+        title: 'Copia di ' + item.title,
+        description: item.description || '',
+        budget: item.budget || 0,
+        start_date: item.start_date || null,
+        end_date: item.end_date || null,
+      })
+      setItems(prev => [...prev, { ...res.data, checklist: [] }])
+      toast.success('WBS duplicata')
+    } catch { toast.error('Errore nella duplicazione') }
   }
 
   const completeWBS = async (id) => {
@@ -388,6 +405,7 @@ export default function WBS() {
               onSaveEdit={saveEdit}
               onCancelEdit={() => setEditingId(null)}
               onDelete={deleteWBS}
+              onDuplicate={duplicateWBS}
               onComplete={completeWBS}
               onProgressUpdate={updateProgress}
               onToggleChecklist={toggleChecklist}
@@ -499,7 +517,7 @@ export default function WBS() {
 function WBSItem({
   item, children, allItems, colorClass, expanded, setExpanded,
   editingId, editForm, setEditForm, onStartEdit, onSaveEdit, onCancelEdit,
-  onDelete, onComplete, onProgressUpdate, onToggleChecklist, onAddChecklist, onDeleteChecklist,
+  onDelete, onDuplicate, onComplete, onProgressUpdate, onToggleChecklist, onAddChecklist, onDeleteChecklist,
   newChecklistInputs, setNewChecklistInputs
 }) {
   const isExpanded = expanded[item.id]
@@ -645,6 +663,9 @@ function WBSItem({
                 Completa
               </button>
             )}
+            <button onClick={() => onDuplicate(item)} className="text-gray-500 hover:text-amber-400 p-1" title="Duplica">
+              <DocumentDuplicateIcon className="w-4 h-4" />
+            </button>
             <button onClick={() => onStartEdit(item)} className="text-gray-500 hover:text-blue-400 p-1">
               <PencilIcon className="w-4 h-4" />
             </button>
@@ -718,6 +739,7 @@ function WBSItem({
                   onSaveEdit={onSaveEdit}
                   onCancelEdit={onCancelEdit}
                   onDelete={onDelete}
+                  onDuplicate={onDuplicate}
                   onComplete={onComplete}
                   onProgressUpdate={onProgressUpdate}
                   onToggleChecklist={onToggleChecklist}
