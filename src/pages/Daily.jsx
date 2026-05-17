@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, addDays, subDays, parseISO, eachDayOfInterval } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon, TrophyIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon, TrophyIcon, MagnifyingGlassIcon, PencilIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 import { tasksAPI, aiAPI, reportsAPI, projectsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
@@ -25,6 +25,8 @@ export default function Daily() {
   const [weekStats, setWeekStats] = useState([])
   const [sortByPriority, setSortByPriority] = useState(false)
   const [taskSearch, setTaskSearch] = useState('')
+  const [editingTaskId, setEditingTaskId] = useState(null)
+  const [editingTaskTitle, setEditingTaskTitle] = useState('')
   const [noteText, setNoteText] = useState('')
 
   const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
@@ -143,6 +145,16 @@ export default function Daily() {
       setTasks(updatedTasks)
       updateProjectProgress(updatedTasks)
     } catch { toast.error('Errore nell\'aggiornamento') }
+  }
+
+  const saveTaskTitle = async (taskId) => {
+    const trimmed = editingTaskTitle.trim()
+    if (!trimmed) { setEditingTaskId(null); return }
+    try {
+      await tasksAPI.updateTask(taskId, { title: trimmed })
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, title: trimmed } : t))
+    } catch { toast.error('Errore nel salvataggio') }
+    setEditingTaskId(null)
   }
 
   const deleteTask = async (e, taskId) => {
@@ -453,9 +465,34 @@ export default function Daily() {
                     : <CheckCircleIcon className="w-6 h-6 text-gray-600 flex-shrink-0 mt-0.5" />
                   }
                   <div className="flex-1">
-                    <p className={`font-medium ${task.completed ? 'line-through text-gray-500' : 'text-white'}`}>
-                      {task.title}
-                    </p>
+                    {editingTaskId === task.id ? (
+                      <input
+                        className="input text-sm w-full"
+                        value={editingTaskTitle}
+                        onChange={e => setEditingTaskTitle(e.target.value)}
+                        onBlur={() => saveTaskTitle(task.id)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') saveTaskTitle(task.id)
+                          if (e.key === 'Escape') setEditingTaskId(null)
+                        }}
+                        onClick={e => e.stopPropagation()}
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2 group/title">
+                        <p className={`font-medium ${task.completed ? 'line-through text-gray-500' : 'text-white'}`}>
+                          {task.title}
+                        </p>
+                        {!task.completed && (
+                          <button
+                            onClick={e => { e.stopPropagation(); setEditingTaskId(task.id); setEditingTaskTitle(task.title) }}
+                            className="opacity-0 group-hover/title:opacity-100 p-0.5 text-gray-600 hover:text-blue-400 transition-all"
+                          >
+                            <PencilIcon className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    )}
                     {task.description && (
                       <p className="text-gray-400 text-sm mt-1">{task.description}</p>
                     )}
