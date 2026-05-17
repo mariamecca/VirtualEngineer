@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { SparklesIcon, ChevronDownIcon, ChevronRightIcon, DocumentTextIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { SparklesIcon, ChevronDownIcon, ChevronRightIcon, DocumentTextIcon, TrashIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
 import { reportsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
 import toast from 'react-hot-toast'
@@ -32,6 +32,15 @@ export default function Reports() {
   const toggle = (id) => setExpanded(p => ({ ...p, [id]: !p[id] }))
   const expandAll = () => setExpanded(Object.fromEntries(reports.map(r => [r.id, true])))
   const collapseAll = () => setExpanded({})
+
+  const copyReport = (e, report) => {
+    e.stopPropagation()
+    const lines = [`RESOCONTO — ${report.date}`, '='.repeat(40)]
+    if (report.summary) lines.push('', 'ANALISI:', report.summary)
+    if (report.next_day_preview) lines.push('', 'PRIORITÀ DOMANI:', report.next_day_preview)
+    navigator.clipboard.writeText(lines.join('\n'))
+    toast.success('Resoconto copiato negli appunti')
+  }
 
   const deleteReport = async (e, id) => {
     e.stopPropagation()
@@ -167,6 +176,13 @@ export default function Reports() {
                       ? <ChevronDownIcon className="w-4 h-4 text-gray-500" />
                       : <ChevronRightIcon className="w-4 h-4 text-gray-500" />
                     }
+                    <button
+                      onClick={e => copyReport(e, report)}
+                      className="p-1 text-gray-600 hover:text-blue-400 hover:bg-blue-900/20 rounded transition-colors"
+                      title="Copia negli appunti"
+                    >
+                      <ClipboardDocumentIcon className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={e => deleteReport(e, report.id)}
                       className="p-1 text-gray-600 hover:text-red-400 hover:bg-red-900/20 rounded transition-colors"
