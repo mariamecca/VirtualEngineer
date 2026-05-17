@@ -21,7 +21,21 @@ export default function Project() {
   const [progressHistory, setProgressHistory] = useState([])
   const [editingPhase, setEditingPhase] = useState(false)
   const [phaseInput, setPhaseInput] = useState('')
+  const [stickyNote, setStickyNote] = useState('')
+  const [stickyNoteSaved, setStickyNoteSaved] = useState(false)
   const chatEndRef = useRef(null)
+
+  useEffect(() => {
+    setStickyNote(localStorage.getItem(`sticky_${id}`) || '')
+  }, [id])
+
+  const saveStickyNote = (val) => {
+    setStickyNote(val)
+    localStorage.setItem(`sticky_${id}`, val)
+    setStickyNoteSaved(true)
+    clearTimeout(window._stickyTimer)
+    window._stickyTimer = setTimeout(() => setStickyNoteSaved(false), 1500)
+  }
 
   useEffect(() => {
     Promise.all([
@@ -254,6 +268,22 @@ export default function Project() {
               <p className="text-gray-300 text-sm leading-relaxed">{project.notes}</p>
             </div>
           )}
+
+          <div className="card">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-white">Appunti veloci</h3>
+              <span className={`text-xs transition-opacity duration-300 ${stickyNoteSaved ? 'text-green-500 opacity-100' : 'opacity-0'}`}>
+                ✓ Salvato
+              </span>
+            </div>
+            <textarea
+              className="input w-full text-sm resize-none"
+              rows={4}
+              placeholder="Scrivi qui appunti rapidi sul cantiere... (salvati localmente)"
+              value={stickyNote}
+              onChange={e => saveStickyNote(e.target.value)}
+            />
+          </div>
         </div>
       )}
 
