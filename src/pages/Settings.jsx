@@ -118,6 +118,27 @@ export default function Settings() {
           VirtualEngineer — Gestione intelligente dei cantieri edili con AI integrata.
         </p>
       </div>
+
+      <div className="card space-y-3 mt-6">
+        <h2 className="font-semibold text-white">Scorciatoie da tastiera</h2>
+        <div className="space-y-2 text-sm">
+          {[
+            { keys: ['A'], desc: 'Apri form nuova attività (pagina Giornata)' },
+            { keys: ['Esc'], desc: 'Chiudi form / annulla modifica' },
+            { keys: ['Enter'], desc: 'Conferma modifica inline (WBS, attività)' },
+            { keys: ['←', '→'], desc: 'Naviga tra giorni (pagina Giornata)' },
+          ].map(({ keys, desc }) => (
+            <div key={desc} className="flex items-center gap-3">
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {keys.map(k => (
+                  <kbd key={k} className="px-2 py-0.5 bg-gray-800 border border-gray-600 rounded text-xs text-gray-300 font-mono">{k}</kbd>
+                ))}
+              </div>
+              <span className="text-gray-400">{desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
