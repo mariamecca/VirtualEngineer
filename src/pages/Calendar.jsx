@@ -19,6 +19,16 @@ export default function Calendar() {
     if (currentProject) loadStats()
   }, [currentProject])
 
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+      if (e.key === 'ArrowLeft') setCurrentMonth(m => subMonths(m, 1))
+      if (e.key === 'ArrowRight') setCurrentMonth(m => addMonths(m, 1))
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [])
+
   const loadStats = async () => {
     try {
       const res = await tasksAPI.getCalendar(currentProject.id)
