@@ -35,6 +35,14 @@ export default function Settings() {
     }
   }
 
+  const [clearConfirm, setClearConfirm] = useState(false)
+
+  const clearLocalData = () => {
+    localStorage.clear()
+    setClearConfirm(false)
+    toast.success('Dati locali eliminati')
+  }
+
   const save = async () => {
     try {
       await axios.post('http://localhost:8000/api/settings', { groq_api_key: apiKey, groq_model: model })
@@ -138,6 +146,28 @@ export default function Settings() {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="card space-y-3 mt-6 border-red-900/40">
+        <h2 className="font-semibold text-white">Dati locali</h2>
+        <p className="text-gray-400 text-sm">
+          Elimina note, appunti veloci e preferenze salvati nel browser. I dati del database rimangono intatti.
+        </p>
+        {clearConfirm ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-red-400">Sicuro? L'operazione è irreversibile.</span>
+            <button onClick={clearLocalData} className="text-sm px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded-lg transition-colors">
+              Conferma
+            </button>
+            <button onClick={() => setClearConfirm(false)} className="btn-secondary text-sm">
+              Annulla
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => setClearConfirm(true)} className="btn-secondary text-sm text-red-400 border-red-900 hover:border-red-700">
+            Cancella dati locali
+          </button>
+        )}
       </div>
     </div>
   )
