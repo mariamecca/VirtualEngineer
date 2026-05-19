@@ -25,7 +25,18 @@ def get_daily_report(project_id: int, date: str = Query(...), db: Session = Depe
 
 @router.get("/all/{project_id}")
 def get_all_reports(project_id: int, db: Session = Depends(get_db)):
-    return db.query(Report).filter(Report.project_id == project_id).order_by(Report.date.desc()).all()
+    reports = db.query(Report).filter(Report.project_id == project_id).order_by(Report.date.desc()).all()
+    result = []
+    for r in reports:
+        tasks = db.query(Task).filter(Task.project_id == project_id, Task.date == r.date).all()
+        result.append({
+            "id": r.id, "project_id": r.project_id, "date": r.date,
+            "summary": r.summary, "next_day_preview": r.next_day_preview,
+            "created_at": str(r.created_at),
+            "tasks_total": len(tasks),
+            "tasks_completed": sum(1 for t in tasks if t.completed),
+        })
+    return result
 
 @router.delete("/{report_id}")
 def delete_report(report_id: int, db: Session = Depends(get_db)):

@@ -172,6 +172,15 @@ export default function Reports() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
+                    {report.tasks_total > 0 && (
+                      <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                        report.tasks_completed === report.tasks_total
+                          ? 'bg-green-900/40 border-green-800 text-green-400'
+                          : 'bg-gray-800 border-gray-700 text-gray-400'
+                      }`}>
+                        {report.tasks_completed}/{report.tasks_total}
+                      </span>
+                    )}
                     {expanded[report.id]
                       ? <ChevronDownIcon className="w-4 h-4 text-gray-500" />
                       : <ChevronRightIcon className="w-4 h-4 text-gray-500" />
