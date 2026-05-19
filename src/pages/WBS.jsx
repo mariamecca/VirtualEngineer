@@ -29,6 +29,7 @@ export default function WBS() {
   })
   const [editForm, setEditForm] = useState({})
   const [wbsSearch, setWbsSearch] = useState('')
+  const [wbsFilter, setWbsFilter] = useState('tutti')
 
   useEffect(() => {
     if (currentProject) load()
@@ -200,9 +201,15 @@ export default function WBS() {
 
   const today = new Date().toISOString().slice(0, 10)
   const rootItems = items.filter(i => !i.parent_id)
-  const filteredRootItems = wbsSearch
+  const filteredRootItems = (wbsSearch
     ? items.filter(i => i.title.toLowerCase().includes(wbsSearch.toLowerCase()) || i.code.toLowerCase().includes(wbsSearch.toLowerCase()))
     : rootItems
+  ).filter(i => {
+    if (wbsFilter === 'completati') return i.progress === 100
+    if (wbsFilter === 'in_corso') return i.progress > 0 && i.progress < 100
+    if (wbsFilter === 'in_ritardo') return i.end_date && i.end_date < today && i.progress < 100
+    return true
+  })
   const childrenOf = (id) => items.filter(i => i.parent_id === id)
   const totalBudget = items.filter(i => !i.parent_id).reduce((s, i) => s + (i.budget || 0), 0)
   const avgProgress = items.length ? Math.round(items.reduce((s, i) => s + i.progress, 0) / items.length) : 0
@@ -330,6 +337,29 @@ export default function WBS() {
               </div>
             )}
           </div>
+
+          {items.length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {[
+                { key: 'tutti', label: `Tutti (${rootItems.length})` },
+                { key: 'in_corso', label: `In corso (${rootItems.filter(i => i.progress > 0 && i.progress < 100).length})` },
+                { key: 'completati', label: `Completati (${rootItems.filter(i => i.progress === 100).length})` },
+                { key: 'in_ritardo', label: `In ritardo (${rootItems.filter(i => i.end_date && i.end_date < today && i.progress < 100).length})` },
+              ].map(f => (
+                <button
+                  key={f.key}
+                  onClick={() => setWbsFilter(f.key)}
+                  className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                    wbsFilter === f.key
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {showAddForm && (
             <div className="card space-y-3 border border-blue-700">
