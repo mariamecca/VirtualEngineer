@@ -32,7 +32,14 @@ export default function WBS() {
   const [wbsFilter, setWbsFilter] = useState('tutti')
 
   useEffect(() => {
-    if (currentProject) load()
+    if (currentProject) {
+      load()
+      setExpanded({})
+      setEditingId(null)
+      setShowAddForm(false)
+      setWbsSearch('')
+      setWbsFilter('tutti')
+    }
   }, [currentProject])
 
   const load = async () => {
