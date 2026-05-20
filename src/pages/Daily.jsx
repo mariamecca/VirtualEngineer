@@ -50,6 +50,7 @@ export default function Daily() {
     if (currentProject) {
       loadTasks()
       loadReport()
+      setTaskSearch('')
     }
   }, [currentProject, selectedDate])
 
