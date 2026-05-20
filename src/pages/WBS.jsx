@@ -122,7 +122,20 @@ export default function WBS() {
   const deleteWBS = async (id) => {
     try {
       await wbsAPI.delete(id)
-      setItems(prev => prev.filter(i => i.id !== id && i.parent_id !== id))
+      setItems(prev => {
+        const toDelete = new Set([id])
+        let changed = true
+        while (changed) {
+          changed = false
+          prev.forEach(i => {
+            if (i.parent_id !== null && toDelete.has(i.parent_id) && !toDelete.has(i.id)) {
+              toDelete.add(i.id)
+              changed = true
+            }
+          })
+        }
+        return prev.filter(i => !toDelete.has(i.id))
+      })
       toast.success('WBS eliminata')
     } catch { toast.error('Errore') }
   }
