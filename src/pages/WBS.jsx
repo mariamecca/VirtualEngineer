@@ -130,7 +130,10 @@ export default function WBS() {
   const toggleChecklist = async (wbsId, checklistId, completed) => {
     try {
       await wbsAPI.updateChecklist(checklistId, { completed: completed ? 1 : 0 })
-      await load()
+      setItems(prev => prev.map(i => i.id === wbsId
+        ? { ...i, checklist: (i.checklist || []).map(c => c.id === checklistId ? { ...c, completed: completed ? 1 : 0 } : c) }
+        : i
+      ))
     } catch { toast.error('Errore') }
   }
 
@@ -138,16 +141,21 @@ export default function WBS() {
     const title = (newChecklistInputs[wbsId] || '').trim()
     if (!title) return
     try {
-      await wbsAPI.addChecklist(wbsId, { title })
+      const res = await wbsAPI.addChecklist(wbsId, { title })
       setNewChecklistInputs(prev => ({ ...prev, [wbsId]: '' }))
-      await load()
+      setItems(prev => prev.map(i => i.id === wbsId
+        ? { ...i, checklist: [...(i.checklist || []), res.data] }
+        : i
+      ))
     } catch { toast.error('Errore') }
   }
 
   const deleteChecklistItem = async (checklistId) => {
     try {
       await wbsAPI.deleteChecklist(checklistId)
-      await load()
+      setItems(prev => prev.map(i => ({
+        ...i, checklist: (i.checklist || []).filter(c => c.id !== checklistId)
+      })))
     } catch { toast.error('Errore') }
   }
 
