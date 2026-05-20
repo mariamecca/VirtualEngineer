@@ -49,6 +49,16 @@ export default function WBS() {
     } catch { toast.error('Errore nel caricamento WBS') }
   }
 
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return
+      if (e.key === 'n' && tab === 'wbs') { e.preventDefault(); setShowAddForm(v => !v) }
+      if (e.key === 'Escape') { setShowAddForm(false); setEditingId(null) }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [tab])
+
   const addWBS = async () => {
     if (!form.code.trim() || !form.title.trim()) {
       toast.error('Codice e titolo sono obbligatori')
