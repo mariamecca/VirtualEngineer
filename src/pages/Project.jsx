@@ -119,6 +119,7 @@ export default function Project() {
     try {
       const res = await projectsAPI.update(id, { current_phase: phaseInput.trim() })
       setProject(res.data)
+      setEditForm(prev => ({ ...prev, current_phase: res.data.current_phase }))
       setEditingPhase(false)
     } catch { toast.error('Errore nel salvataggio') }
   }
