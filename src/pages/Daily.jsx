@@ -95,9 +95,8 @@ export default function Daily() {
   const updateProjectProgress = async (updatedTasks) => {
     if (!currentProject) return
     const total = updatedTasks.length
-    if (total === 0) return
     const completed = updatedTasks.filter(t => t.completed).length
-    const newProgress = Math.round((completed / total) * 100)
+    const newProgress = total === 0 ? 0 : Math.round((completed / total) * 100)
     try {
       await projectsAPI.update(currentProject.id, { progress: newProgress })
       await reportsAPI.saveSnapshot(currentProject.id, selectedDate, newProgress)
