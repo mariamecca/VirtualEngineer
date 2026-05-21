@@ -200,6 +200,7 @@ export default function Daily() {
   }
 
   const copyTaskList = () => {
+    if (!currentProject) return
     const dateLabel = format(parseISO(selectedDate), 'd MMMM yyyy', { locale: it })
     const lines = [`Attività del ${dateLabel} — ${currentProject.name}`, '']
     tasks.forEach(t => {
@@ -213,6 +214,7 @@ export default function Daily() {
   }
 
   const exportReport = () => {
+    if (!currentProject) return
     const dateLabel = format(parseISO(selectedDate), 'd MMMM yyyy', { locale: it })
     const completedTasks = tasks.filter(t => t.completed)
     const pendingTasks = tasks.filter(t => !t.completed)
