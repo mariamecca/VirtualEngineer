@@ -608,7 +608,10 @@ export default function Daily() {
         <div className="text-center py-16">
           <SparklesIcon className="w-16 h-16 text-gray-700 mx-auto mb-4" />
           <h3 className="text-gray-400 font-medium">Nessuna attività per questo giorno</h3>
-          {isToday && <p className="text-gray-600 text-sm mt-1">Clicca "Genera piano AI" per iniziare</p>}
+          {isToday
+            ? <p className="text-gray-600 text-sm mt-1">Clicca "Genera piano AI" per iniziare oppure aggiungi attività manualmente</p>
+            : <p className="text-gray-600 text-sm mt-1">Nessuna attività registrata per questo giorno passato</p>
+          }
         </div>
       )}
 
