@@ -619,9 +619,12 @@ export default function Daily() {
             <label className="text-xs font-medium uppercase tracking-wide text-gray-500">
               Nota del giorno
             </label>
-            <span className={`text-xs transition-opacity duration-300 ${noteSaved ? 'text-green-500 opacity-100' : 'opacity-0'}`}>
-              ✓ Salvato
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-600">{noteText.length} caratteri</span>
+              <span className={`text-xs transition-opacity duration-300 ${noteSaved ? 'text-green-500 opacity-100' : 'opacity-0'}`}>
+                ✓ Salvato
+              </span>
+            </div>
           </div>
           <textarea
             className="input w-full text-sm resize-none"
