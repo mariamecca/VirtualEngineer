@@ -148,7 +148,10 @@ export default function Home() {
             <p className="text-gray-400 text-sm">Carica documenti esistenti per l'analisi AI</p>
           </Link>
 
-          <div className="card hover:border-green-500 transition-colors cursor-pointer group">
+          <div
+            className="card hover:border-green-500 transition-colors cursor-pointer group"
+            onClick={() => document.getElementById('project-list')?.scrollIntoView({ behavior: 'smooth' })}
+          >
             <div className="w-12 h-12 bg-green-600/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-600/30 transition-colors">
               <FolderOpenIcon className="w-6 h-6 text-green-400" />
             </div>
@@ -158,7 +161,7 @@ export default function Home() {
         </div>
 
         {serverProjects.length > 0 && (
-          <div>
+          <div id="project-list">
             <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
               <div className="flex items-center gap-1 bg-gray-900 rounded-lg p-1">
                 {[
