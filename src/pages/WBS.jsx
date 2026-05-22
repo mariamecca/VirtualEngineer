@@ -406,7 +406,8 @@ export default function WBS() {
                 <div>
                   <label className="label">Codice *</label>
                   <input className="input" placeholder="es. 1.2.3" value={form.code}
-                    onChange={e => setForm(p => ({ ...p, code: e.target.value }))} />
+                    onChange={e => setForm(p => ({ ...p, code: e.target.value }))}
+                    autoFocus />
                 </div>
                 <div>
                   <label className="label">Titolo *</label>
@@ -445,7 +446,13 @@ export default function WBS() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button onClick={addWBS} className="btn-primary text-sm">Aggiungi</button>
+                <button
+                  onClick={addWBS}
+                  onKeyDown={e => e.key === 'Enter' && addWBS()}
+                  className="btn-primary text-sm"
+                >
+                  Aggiungi
+                </button>
                 <button onClick={() => setShowAddForm(false)} className="btn-secondary text-sm">Annulla</button>
               </div>
             </div>
