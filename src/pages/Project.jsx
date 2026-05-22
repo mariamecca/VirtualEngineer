@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { projectsAPI, filesAPI, aiAPI, reportsAPI } from '../utils/api'
 import { useDropzone } from 'react-dropzone'
-import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon, PencilIcon, CheckIcon, XMarkIcon, ClipboardDocumentIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon, PencilIcon, CheckIcon, XMarkIcon, ClipboardDocumentIcon, TrashIcon, CalendarDaysIcon } from '@heroicons/react/24/outline'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import toast from 'react-hot-toast'
 
@@ -154,6 +154,19 @@ export default function Project() {
         <h1 className="text-2xl font-bold text-white">{project.name}</h1>
         <div className="flex items-center gap-3 mt-1 flex-wrap">
           <p className="text-gray-400">{project.location} · Cliente: {project.client}</p>
+          {project.deadline && (() => {
+            const today = new Date().toISOString().slice(0, 10)
+            const daysLeft = Math.ceil((new Date(project.deadline) - new Date(today)) / 86400000)
+            const overdue = daysLeft < 0 && (project.progress || 0) < 100
+            const soon = daysLeft >= 0 && daysLeft <= 14 && (project.progress || 0) < 100
+            if (!overdue && !soon) return null
+            return (
+              <span className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border ${overdue ? 'bg-red-900/40 border-red-800 text-red-400' : 'bg-amber-900/40 border-amber-800 text-amber-400'}`}>
+                <CalendarDaysIcon className="w-3.5 h-3.5" />
+                {overdue ? 'Scaduto' : daysLeft === 0 ? 'Scade oggi' : `Scade in ${daysLeft}gg`}
+              </span>
+            )
+          })()}
           {editingPhase ? (
             <div className="flex items-center gap-1">
               <input
