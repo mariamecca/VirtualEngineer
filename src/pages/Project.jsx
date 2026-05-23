@@ -215,11 +215,16 @@ export default function Project() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors flex items-center gap-1.5 ${
               tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
             }`}
           >
             {t}
+            {t === 'files' && files.length > 0 && (
+              <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === t ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                {files.length}
+              </span>
+            )}
           </button>
         ))}
         </div>
