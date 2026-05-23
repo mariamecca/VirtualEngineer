@@ -4,10 +4,12 @@ import { it } from 'date-fns/locale'
 import { SparklesIcon, ChevronDownIcon, ChevronRightIcon, DocumentTextIcon, TrashIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
 import { reportsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 export default function Reports() {
   const { currentProject } = useProjectStore()
+  const navigate = useNavigate()
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState({})
@@ -161,7 +163,11 @@ export default function Reports() {
                   <div className="flex items-center gap-3">
                     <SparklesIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
                     <div className="text-left">
-                      <p className="text-white font-medium capitalize">
+                      <p
+                        className="text-white font-medium capitalize hover:text-blue-400 transition-colors cursor-pointer"
+                        onClick={e => { e.stopPropagation(); navigate('/daily', { state: { date: report.date } }) }}
+                        title="Apri in Giornata"
+                      >
                         {format(parseISO(report.date), "EEEE d MMMM yyyy", { locale: it })}
                       </p>
                       {!expanded[report.id] && report.summary && (
