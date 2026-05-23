@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { format, addDays, subDays, parseISO, eachDayOfInterval } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { SparklesIcon, CheckCircleIcon, PlusIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ArrowDownTrayIcon, FunnelIcon, ClipboardDocumentIcon, TrophyIcon, MagnifyingGlassIcon, PencilIcon, CalendarDaysIcon } from '@heroicons/react/24/outline'
@@ -29,6 +29,7 @@ export default function Daily() {
   const [editingTaskTitle, setEditingTaskTitle] = useState('')
   const [noteText, setNoteText] = useState('')
 
+  const taskListRef = useRef(null)
   const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
   const [noteSaved, setNoteSaved] = useState(false)
 
@@ -110,6 +111,7 @@ export default function Daily() {
       const res = await aiAPI.generateDailyPlan(currentProject.id, selectedDate)
       setTasks(res.data.tasks)
       toast.success('Piano giornaliero generato!')
+      setTimeout(() => taskListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     } catch { toast.error('Errore nella generazione del piano') }
     finally { setGenerating(false) }
   }
@@ -465,7 +467,7 @@ export default function Daily() {
           </div>
 
           {/* Lista task */}
-          <div className="space-y-3 mb-4">
+          <div ref={taskListRef} className="space-y-3 mb-4">
             {filteredTasks.length === 0 && (
               <p className="text-gray-500 text-sm text-center py-4">Nessuna attività per questo filtro</p>
             )}
