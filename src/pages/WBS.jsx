@@ -463,6 +463,14 @@ export default function WBS() {
               <p className="text-gray-500">Nessuna WBS aggiunta. Clicca "Aggiungi WBS" per iniziare.</p>
             </div>
           )}
+          {rootItems.length > 0 && filteredRootItems.length === 0 && (
+            <div className="text-center py-10">
+              <p className="text-gray-500 text-sm">Nessun elemento corrisponde al filtro selezionato.</p>
+              <button onClick={() => { setWbsFilter('tutti'); setWbsSearch('') }} className="text-blue-400 hover:text-blue-300 text-sm mt-2 underline">
+                Rimuovi filtri
+              </button>
+            </div>
+          )}
 
           {filteredRootItems.map((item, idx) => (
             <WBSItem
