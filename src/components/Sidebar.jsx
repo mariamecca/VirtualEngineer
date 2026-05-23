@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
 import { useEffect, useState } from 'react'
-import { projectsAPI } from '../utils/api'
+import { projectsAPI, tasksAPI } from '../utils/api'
 
 const navItems = [
   { to: '/', icon: HomeIcon, label: 'Dashboard' },
@@ -22,6 +22,7 @@ const navItems = [
 export default function Sidebar() {
   const { currentProject } = useProjectStore()
   const [overdueCount, setOverdueCount] = useState(0)
+  const [todayTaskStats, setTodayTaskStats] = useState(null)
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10)
@@ -32,6 +33,19 @@ export default function Sidebar() {
       })
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!currentProject) { setTodayTaskStats(null); return }
+    const today = new Date().toISOString().slice(0, 10)
+    tasksAPI.getDaily(currentProject.id, today)
+      .then(res => {
+        const tasks = res.data
+        if (tasks.length === 0) { setTodayTaskStats(null); return }
+        const completed = tasks.filter(t => t.completed).length
+        setTodayTaskStats({ completed, total: tasks.length })
+      })
+      .catch(() => {})
+  }, [currentProject])
 
   return (
     <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
@@ -81,6 +95,15 @@ export default function Sidebar() {
             {to === '/' && overdueCount > 0 && (
               <span className="bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
                 {overdueCount}
+              </span>
+            )}
+            {to === '/daily' && todayTaskStats && (
+              <span className={`text-xs px-1.5 py-0.5 rounded-full leading-none font-medium ${
+                todayTaskStats.completed === todayTaskStats.total
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-700 text-gray-300'
+              }`}>
+                {todayTaskStats.completed}/{todayTaskStats.total}
               </span>
             )}
           </NavLink>
