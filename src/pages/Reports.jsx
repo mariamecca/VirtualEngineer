@@ -76,9 +76,10 @@ export default function Reports() {
   const allMonths = Object.keys(groupByMonth(reports)).sort((a, b) => b.localeCompare(a))
   const filteredReports = monthFilter === 'all' ? reports : reports.filter(r => r.date.startsWith(monthFilter))
   const grouped = groupByMonth(filteredReports)
-  const monthCount = Object.keys(groupByMonth(reports)).length
+  const allGrouped = groupByMonth(reports)
+  const monthCount = Object.keys(allGrouped).length
   const busiestMonth = monthCount > 0
-    ? Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)[0]
+    ? Object.entries(allGrouped).sort((a, b) => b[1].length - a[1].length)[0]
     : null
 
   return (
