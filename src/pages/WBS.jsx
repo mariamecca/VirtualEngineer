@@ -39,6 +39,7 @@ export default function WBS() {
       setShowAddForm(false)
       setWbsSearch('')
       setWbsFilter('tutti')
+      setSchedule(null)
     }
   }, [currentProject])
 
