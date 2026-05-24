@@ -16,7 +16,10 @@ export default function Calendar() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (currentProject) loadStats()
+    if (currentProject) {
+      setCalendarStats([])
+      loadStats()
+    }
   }, [currentProject])
 
   useEffect(() => {
