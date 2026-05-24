@@ -27,6 +27,7 @@ export default function Project() {
 
   useEffect(() => {
     setStickyNote(localStorage.getItem(`sticky_${id}`) || '')
+    return () => clearTimeout(window._stickyTimer)
   }, [id])
 
   const saveStickyNote = (val) => {
