@@ -102,6 +102,7 @@ export default function Project() {
   }
 
   const copySummary = () => {
+    if (!project) return
     const lines = [
       `Progetto: ${project.name}`,
       project.location ? `Luogo: ${project.location}` : null,
