@@ -184,6 +184,7 @@ export default function WBS() {
   }
 
   const exportCSV = () => {
+    if (!currentProject) return
     const header = ['Codice', 'Titolo', 'Descrizione', 'Budget (€)', 'Inizio', 'Fine', 'Avanzamento (%)', 'WBS Padre']
     const rows = items.map(i => {
       const parent = items.find(p => p.id === i.parent_id)
