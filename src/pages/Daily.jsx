@@ -35,6 +35,7 @@ export default function Daily() {
 
   useEffect(() => {
     if (noteKey) setNoteText(localStorage.getItem(noteKey) || '')
+    return () => clearTimeout(window._noteSaveTimer)
   }, [noteKey])
 
   const saveNote = (val) => {
