@@ -73,6 +73,8 @@ export default function Daily() {
         setShowAddForm(true)
       }
       if (e.key === 'Escape') setShowAddForm(false)
+      if (e.key === 'ArrowLeft') setSelectedDate(d => format(subDays(parseISO(d), 1), 'yyyy-MM-dd'))
+      if (e.key === 'ArrowRight') setSelectedDate(d => format(addDays(parseISO(d), 1), 'yyyy-MM-dd'))
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
