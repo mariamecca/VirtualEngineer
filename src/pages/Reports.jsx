@@ -16,7 +16,11 @@ export default function Reports() {
   const [monthFilter, setMonthFilter] = useState('all')
 
   useEffect(() => {
-    if (currentProject) loadReports()
+    if (currentProject) {
+      setExpanded({})
+      setMonthFilter('all')
+      loadReports()
+    }
   }, [currentProject])
 
   const loadReports = async () => {
