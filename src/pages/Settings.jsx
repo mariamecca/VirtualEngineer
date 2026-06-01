@@ -132,9 +132,10 @@ export default function Settings() {
         <div className="space-y-2 text-sm">
           {[
             { keys: ['A'], desc: 'Apri form nuova attività (pagina Giornata)' },
+            { keys: ['N'], desc: 'Apri form nuovo elemento (pagina WBS)' },
             { keys: ['Esc'], desc: 'Chiudi form / annulla modifica' },
             { keys: ['Enter'], desc: 'Conferma modifica inline (WBS, attività)' },
-            { keys: ['←', '→'], desc: 'Naviga tra giorni (pagina Giornata)' },
+            { keys: ['←', '→'], desc: 'Naviga tra giorni (Giornata) o mesi (Calendario)' },
           ].map(({ keys, desc }) => (
             <div key={desc} className="flex items-center gap-3">
               <div className="flex items-center gap-1 flex-shrink-0">
