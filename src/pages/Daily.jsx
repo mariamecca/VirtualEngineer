@@ -53,6 +53,7 @@ export default function Daily() {
       loadTasks()
       loadReport()
       setTaskSearch('')
+      setFilter('tutte')
     }
   }, [currentProject, selectedDate])
 
