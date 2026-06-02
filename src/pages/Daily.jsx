@@ -74,7 +74,10 @@ export default function Daily() {
       }
       if (e.key === 'Escape') setShowAddForm(false)
       if (e.key === 'ArrowLeft') setSelectedDate(d => format(subDays(parseISO(d), 1), 'yyyy-MM-dd'))
-      if (e.key === 'ArrowRight') setSelectedDate(d => format(addDays(parseISO(d), 1), 'yyyy-MM-dd'))
+      if (e.key === 'ArrowRight') setSelectedDate(d => {
+        const next = format(addDays(parseISO(d), 1), 'yyyy-MM-dd')
+        return next <= today ? next : d
+      })
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
