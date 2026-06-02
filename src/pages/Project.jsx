@@ -155,7 +155,10 @@ export default function Project() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">{project.name}</h1>
         <div className="flex items-center gap-3 mt-1 flex-wrap">
-          <p className="text-gray-400">{project.location} · Cliente: {project.client}</p>
+          <p className="text-gray-400">
+            {[project.location, project.client ? `Cliente: ${project.client}` : null]
+              .filter(Boolean).join(' · ') || 'Nessun dettaglio'}
+          </p>
           {project.deadline && (() => {
             const today = new Date().toISOString().slice(0, 10)
             const daysLeft = Math.ceil((new Date(project.deadline) - new Date(today)) / 86400000)
