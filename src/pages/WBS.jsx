@@ -40,6 +40,7 @@ export default function WBS() {
       setWbsSearch('')
       setWbsFilter('tutti')
       setSchedule(null)
+      setTab('wbs')
     }
   }, [currentProject])
 
