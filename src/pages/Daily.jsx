@@ -188,7 +188,9 @@ export default function Daily() {
         date: selectedDate,
         priority: newTaskPriority
       })
-      setTasks(prev => [...prev, res.data])
+      const updatedTasks = [...tasks, res.data]
+      setTasks(updatedTasks)
+      updateProjectProgress(updatedTasks)
       setNewTaskTitle('')
       setNewTaskDescription('')
       setNewTaskPriority('media')
