@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { projectsAPI, filesAPI, aiAPI, reportsAPI } from '../utils/api'
+import { useProjectStore } from '../store/projectStore'
 import { useDropzone } from 'react-dropzone'
 import { CloudArrowUpIcon, PhotoIcon, DocumentIcon, SparklesIcon, PaperAirplaneIcon, PencilIcon, CheckIcon, XMarkIcon, ClipboardDocumentIcon, TrashIcon, CalendarDaysIcon } from '@heroicons/react/24/outline'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
@@ -8,6 +9,7 @@ import toast from 'react-hot-toast'
 
 export default function Project() {
   const { id } = useParams()
+  const { updateProject } = useProjectStore()
   const [project, setProject] = useState(null)
   const [files, setFiles] = useState([])
   const [optimizations, setOptimizations] = useState(null)
@@ -122,6 +124,7 @@ export default function Project() {
       const res = await projectsAPI.update(id, { current_phase: phaseInput.trim() })
       setProject(res.data)
       setEditForm(prev => ({ ...prev, current_phase: res.data.current_phase }))
+      updateProject(parseInt(id), { current_phase: res.data.current_phase })
       setEditingPhase(false)
     } catch { toast.error('Errore nel salvataggio') }
   }
@@ -140,6 +143,7 @@ export default function Project() {
         notes: editForm.notes
       })
       setProject(res.data)
+      updateProject(parseInt(id), res.data)
       setTab('overview')
       toast.success('Cantiere aggiornato')
     } catch { toast.error('Errore nel salvataggio') }
