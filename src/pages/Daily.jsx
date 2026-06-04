@@ -117,6 +117,7 @@ export default function Daily() {
     try {
       const res = await aiAPI.generateDailyPlan(currentProject.id, selectedDate)
       setTasks(res.data.tasks)
+      updateProjectProgress(res.data.tasks)
       toast.success('Piano giornaliero generato!')
       setTimeout(() => taskListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     } catch { toast.error('Errore nella generazione del piano') }
