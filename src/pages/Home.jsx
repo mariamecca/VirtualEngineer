@@ -267,7 +267,7 @@ export default function Home() {
                     />
                   </div>
                   <div className="flex gap-4 mt-4 text-sm flex-wrap items-center">
-                    <span className="text-gray-400">Budget: <span className="text-white">€{project.budget?.toLocaleString()}</span></span>
+                    <span className="text-gray-400">Budget: <span className="text-white">{project.budget != null ? `€${project.budget.toLocaleString()}` : 'N/D'}</span></span>
                     <span className="text-gray-400">Scadenza: <span className={`${project.deadline && project.deadline < today && (project.progress || 0) < 100 ? 'text-red-400' : 'text-white'}`}>{project.deadline || '—'}</span></span>
                     {project.client && <span className="text-gray-400">Cliente: <span className="text-white">{project.client}</span></span>}
                     {project.current_phase && <span className="text-gray-400">Fase: <span className="text-amber-300">{project.current_phase}</span></span>}
