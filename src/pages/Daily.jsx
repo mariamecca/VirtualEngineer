@@ -54,6 +54,8 @@ export default function Daily() {
       loadReport()
       setTaskSearch('')
       setFilter('tutte')
+      setShowAddForm(false)
+      setSortByPriority(false)
     }
   }, [currentProject, selectedDate])
 
