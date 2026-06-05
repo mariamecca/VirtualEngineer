@@ -41,6 +41,8 @@ export default function Project() {
   }
 
   useEffect(() => {
+    setTab('overview')
+    setEditingPhase(false)
     Promise.all([
       projectsAPI.getById(id).then(r => {
         setProject(r.data)
