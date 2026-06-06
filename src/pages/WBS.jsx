@@ -41,6 +41,7 @@ export default function WBS() {
       setWbsFilter('tutti')
       setSchedule(null)
       setTab('wbs')
+      setNewChecklistInputs({})
     }
   }, [currentProject])
 
