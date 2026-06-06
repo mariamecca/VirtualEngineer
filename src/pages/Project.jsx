@@ -92,7 +92,7 @@ export default function Project() {
       setChatMessages(prev => [...prev, { role: 'assistant', content: res.data.response }])
     } catch {
       toast.error('Errore nella risposta AI')
-      setChatMessages(prev => prev.slice(0, -1))
+      setChatMessages(prev => prev.filter(m => m !== userMsg))
     } finally {
       setChatLoading(false)
     }
