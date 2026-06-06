@@ -165,8 +165,8 @@ export default function Daily() {
     try {
       await tasksAPI.updateTask(taskId, { title: trimmed })
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, title: trimmed } : t))
+      setEditingTaskId(null)
     } catch { toast.error('Errore nel salvataggio') }
-    setEditingTaskId(null)
   }
 
   const deleteTask = async (e, taskId) => {
