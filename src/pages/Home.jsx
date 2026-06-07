@@ -223,7 +223,7 @@ export default function Home() {
               {filteredProjects.map(project => (
                 <div
                   key={project.id}
-                  onClick={() => setCurrentProject(project)}
+                  onClick={() => { setCurrentProject(project); setConfirmDeleteId(null) }}
                   className={`card cursor-pointer hover:border-blue-500 transition-colors ${
                     currentProject?.id === project.id ? 'border-blue-500' : ''
                   }`}
