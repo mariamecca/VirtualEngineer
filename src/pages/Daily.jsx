@@ -505,7 +505,7 @@ export default function Daily() {
                         onBlur={() => saveTaskTitle(task.id)}
                         onKeyDown={e => {
                           if (e.key === 'Enter') saveTaskTitle(task.id)
-                          if (e.key === 'Escape') setEditingTaskId(null)
+                          if (e.key === 'Escape') { setEditingTaskId(null); setEditingTaskTitle('') }
                         }}
                         onClick={e => e.stopPropagation()}
                         autoFocus
