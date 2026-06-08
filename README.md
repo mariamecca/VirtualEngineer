@@ -55,7 +55,7 @@ Lo script installa automaticamente tutte le dipendenze frontend (npm) e backend 
 
 > **Problema "Permission denied"?**
 > ```bash
-> chmod +x install.sh start.sh
+> chmod +x install.sh start.sh "Avvia VirtualEngineer.command"
 > ```
 
 ### 3. Avvio
@@ -73,6 +73,62 @@ Per fermare tutto: `Ctrl+C`
 ### Guida visiva
 
 Apri **`setup.html`** nel browser per una pagina interattiva con istruzioni passo-passo, comandi cliccabili e soluzioni ai problemi più comuni.
+
+---
+
+## Configurazione macOS 🍎
+
+### Metodo più semplice — Doppio clic da Finder
+
+Il file **`Avvia VirtualEngineer.command`** permette di avviare l'app con un doppio clic, senza aprire il Terminale manualmente.
+
+**Prima configurazione (una sola volta):**
+
+1. Apri il Terminale e dai i permessi di esecuzione:
+   ```bash
+   cd ~/Desktop/Projects/VirtualEngineer
+   chmod +x install.sh start.sh "Avvia VirtualEngineer.command"
+   ```
+
+2. Fai doppio clic su **`Avvia VirtualEngineer.command`** dalla cartella del progetto (o spostalo sul Desktop).
+
+> **macOS blocca il file?** Vai in **Impostazioni di Sistema → Privacy e sicurezza** e clicca "Apri comunque", oppure:
+> ```bash
+> xattr -d com.apple.quarantine "Avvia VirtualEngineer.command"
+> ```
+
+---
+
+### Installazione prerequisiti su macOS con Homebrew
+
+[Homebrew](https://brew.sh) è il modo più semplice per installare Node.js e Python su Mac.
+
+```bash
+# Installa Homebrew (se non ce l'hai)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Installa Node.js e Python
+brew install node python
+```
+
+Verifica l'installazione:
+```bash
+node -v    # deve mostrare v18 o superiore
+python3 -v # deve mostrare 3.9 o superiore
+```
+
+---
+
+### Problemi comuni su macOS
+
+| Problema | Soluzione |
+|---------|-----------|
+| `zsh: permission denied: ./start.sh` | `chmod +x install.sh start.sh` |
+| `python3: command not found` | Installa Python da [python.org](https://python.org) o con `brew install python` |
+| `node: command not found` | Installa Node.js da [nodejs.org](https://nodejs.org) o con `brew install node` |
+| `Address already in use` porta 8000 o 5173 | `lsof -ti:8000,5173 \| xargs kill -9` |
+| Il file `.command` viene bloccato da Gatekeeper | `xattr -d com.apple.quarantine "Avvia VirtualEngineer.command"` |
+| `npm error enoent: package.json not found` | Stai eseguendo il comando dalla cartella sbagliata. Esegui prima `cd ~/Desktop/Projects/VirtualEngineer` |
 
 ---
 
