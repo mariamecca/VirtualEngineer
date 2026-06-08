@@ -2,103 +2,147 @@
 
 > AI-powered construction site management platform
 
-VirtualEngineer is an intelligent platform that acts as a virtual site manager for construction projects. It generates daily task plans, tracks progress, optimizes budget and timelines, and produces end-of-day reports — all powered by AI.
+VirtualEngineer è una piattaforma intelligente che funge da responsabile di cantiere virtuale. Genera piani giornalieri, traccia l'avanzamento, ottimizza budget e scadenze, e produce resoconti di fine giornata — tutto alimentato dall'intelligenza artificiale.
 
-**Currently being tested on a real active road construction site.**
-
----
-
-## Features
-
-- 📋 **AI Daily Planning** — generates a daily checklist of tasks based on project phase, budget, and deadlines
-- ✅ **Checklist Management** — site managers can check off tasks and modify the plan
-- 📊 **End-of-day Reports** — AI summarizes daily progress and previews next day priorities
-- 📁 **Document & Photo Upload** — upload site documents and photos for monitoring
-- 🔍 **Smart Onboarding** — import an existing project by uploading documents; AI extracts all information automatically
-- 💡 **Optimization Suggestions** — AI recommends budget and time-saving actions
-- 🗓️ **Project Calendar** — full timeline tracking from kickoff to completion
+**Attualmente in fase di test su un cantiere stradale attivo.**
 
 ---
 
-## Tech Stack
+## Funzionalità
 
-| Layer | Technology |
+- 📋 **Pianificazione AI giornaliera** — genera una checklist di attività basata su fase, budget e scadenze del progetto
+- ✅ **Gestione WBS** — struttura il lavoro in voci gerarchiche con avanzamento, budget e checklist
+- 📊 **Resoconti di fine giornata** — l'AI riassume il progresso e anticipa le priorità del giorno successivo
+- 📁 **Caricamento documenti e foto** — upload di materiale di cantiere per il monitoraggio
+- 🔍 **Onboarding smart** — importa un progetto esistente caricando documenti; l'AI estrae tutte le informazioni automaticamente
+- 💡 **Suggerimenti di ottimizzazione** — l'AI consiglia azioni per risparmiare budget e tempo
+- 🗓️ **Calendario progetto** — tracciamento completo dalla partenza alla consegna
+
+---
+
+## Stack tecnologico
+
+| Layer | Tecnologia |
 |-------|-----------|
 | Frontend | React + Tailwind CSS + Vite |
 | Desktop | Electron.js |
 | Backend | Python FastAPI |
-| Database | SQLite (local) |
+| Database | SQLite (locale) |
 | AI | Groq API (Llama 3.3 70B) |
 
 ---
 
-## Getting Started
+## Avvio rapido
 
-### Prerequisites
-- Node.js (nodejs.org)
-- Python 3.x
+### Prerequisiti
+- [Node.js](https://nodejs.org) (v18 o superiore)
+- [Python 3](https://python.org) (v3.9 o superiore)
 
-### Installation
+### 1. Clona il repository
 
 ```bash
-# Clone the repository
 git clone https://github.com/mariamecca/VirtualEngineer.git
 cd VirtualEngineer
-
-# Install frontend dependencies
-npm install
-
-# Install backend dependencies
-cd backend
-pip3 install -r requirements.txt
 ```
 
-### Running the app
+### 2. Installazione (una sola volta)
 
 ```bash
-# Terminal 1 — Start backend
-cd backend
-python3 main.py
+./install.sh
+```
 
-# Terminal 2 — Start frontend
+Lo script installa automaticamente tutte le dipendenze frontend (npm) e backend (pip) e crea il file di configurazione.
+
+> **Problema "Permission denied"?**
+> ```bash
+> chmod +x install.sh start.sh
+> ```
+
+### 3. Avvio
+
+```bash
+./start.sh
+```
+
+Avvia backend e frontend con un solo comando e apre il browser su `http://localhost:5173`.
+
+Per fermare tutto: `Ctrl+C`
+
+---
+
+### Guida visiva
+
+Apri **`setup.html`** nel browser per una pagina interattiva con istruzioni passo-passo, comandi cliccabili e soluzioni ai problemi più comuni.
+
+---
+
+### Installazione manuale (alternativa)
+
+<details>
+<summary>Mostra istruzioni manuali</summary>
+
+```bash
+# Dipendenze frontend
+npm install
+
+# Dipendenze backend
+cd backend
+pip3 install -r requirements.txt
+cd ..
+```
+
+```bash
+# Terminale 1 — Avvia backend
+cd backend && python3 main.py
+
+# Terminale 2 — Avvia frontend
 npm run dev:web
 ```
 
-Open `http://localhost:5173` in your browser.
+Apri `http://localhost:5173` nel browser.
 
-### Configuration
-
-1. Go to **Settings** in the app
-2. Enter your **Groq API key** (free at console.groq.com)
-3. Save and start using the AI features
+</details>
 
 ---
 
-## Usage
+## Configurazione AI
 
-### New project
-1. Click **"Nuovo Cantiere"** on the dashboard
-2. Fill in project details (name, budget, deadline, phase)
-3. Go to **"Giornata"** and generate your first AI daily plan
+1. Ottieni una API key gratuita su [console.groq.com](https://console.groq.com)
+2. Apri **Impostazioni** nell'app
+3. Incolla la chiave e salva
 
-### Import existing project
-1. Click **"Importa Cantiere"**
-2. Upload existing documents (PDF, Word, text files)
-3. AI extracts project information automatically
-4. Review and confirm
+In alternativa, inseriscila direttamente in `backend/.env`:
+```
+GROQ_API_KEY=tua_chiave_qui
+```
 
 ---
 
-## Built with Claude Code
+## Utilizzo
 
-This project was built with the assistance of **Claude Code by Anthropic**, which accelerated development from architecture design to deployment-ready code.
+### Nuovo progetto
+1. Clicca **"Nuovo Cantiere"** nella dashboard
+2. Compila i dati (nome, budget, scadenza, fase)
+3. Vai in **"Giornata"** e genera il tuo primo piano AI
+
+### Importa progetto esistente
+1. Clicca **"Importa Cantiere"**
+2. Carica i documenti esistenti (PDF, Word, testo)
+3. L'AI estrae le informazioni automaticamente
+4. Rivedi e conferma
 
 ---
 
-## License
+## Sviluppato con Claude Code
 
-MIT License — free to use, modify, and distribute.
+Questo progetto è stato sviluppato con il supporto di **Claude Code by Anthropic**, che ha accelerato lo sviluppo dalla progettazione dell'architettura fino al codice pronto al deploy.
 
 ---
 
-*VirtualEngineer — bringing AI to the construction site*
+## Licenza
+
+MIT License — libero di usare, modificare e distribuire.
+
+---
+
+*VirtualEngineer — l'intelligenza artificiale al servizio del cantiere*
