@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { wbsAPI, aiAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
 import {
@@ -614,6 +614,7 @@ function WBSItem({
   const checkTotal = item.checklist?.length || 0
   const [editingProgress, setEditingProgress] = useState(false)
   const [progressVal, setProgressVal] = useState(item.progress)
+  const progressEscaped = useRef(false)
 
   return (
     <div className={`card border-l-4 ${colorClass} space-y-3`}>
@@ -725,10 +726,14 @@ function WBSItem({
                   className="w-16 text-sm font-bold text-green-400 bg-gray-800 border border-green-600 rounded px-1 text-right"
                   value={progressVal}
                   onChange={e => setProgressVal(e.target.value)}
-                  onBlur={() => { onProgressUpdate(item.id, progressVal); setEditingProgress(false) }}
+                  onBlur={() => {
+                    if (!progressEscaped.current) onProgressUpdate(item.id, progressVal)
+                    progressEscaped.current = false
+                    setEditingProgress(false)
+                  }}
                   onKeyDown={e => {
                     if (e.key === 'Enter') { onProgressUpdate(item.id, progressVal); setEditingProgress(false) }
-                    if (e.key === 'Escape') { setProgressVal(item.progress); setEditingProgress(false) }
+                    if (e.key === 'Escape') { progressEscaped.current = true; setEditingProgress(false) }
                   }}
                   autoFocus
                   onClick={e => e.stopPropagation()}
