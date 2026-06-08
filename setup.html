@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VirtualEngineer — Setup</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px;
+    }
+
+    /* ── Header ── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .logo-icon {
+      width: 52px; height: 52px;
+      background: #2563eb;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+    .logo h1 { font-size: 2rem; font-weight: 800; color: #fff; }
+    .logo h1 span { color: #60a5fa; }
+    .tagline {
+      color: #94a3b8;
+      font-size: 1rem;
+      margin-bottom: 48px;
+      text-align: center;
+    }
+
+    /* ── Cards container ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 28px 24px;
+      position: relative;
+    }
+    .card.highlight { border-color: #3b82f6; }
+
+    .step-num {
+      width: 32px; height: 32px;
+      background: #1e40af;
+      color: #93c5fd;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem;
+      margin-bottom: 14px;
+    }
+    .card h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: #7dd3fc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .code-block:hover { border-color: #3b82f6; }
+    .code-block .copy-btn {
+      background: none; border: none;
+      color: #64748b; cursor: pointer;
+      font-size: 0.75rem; white-space: nowrap;
+      transition: color 0.15s;
+    }
+    .code-block:hover .copy-btn { color: #93c5fd; }
+
+    .code-block + .code-block { margin-top: 8px; }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-bottom: 10px;
+    }
+    .badge-blue  { background: #1e3a8a; color: #93c5fd; }
+    .badge-green { background: #14532d; color: #86efac; }
+    .badge-amber { background: #451a03; color: #fcd34d; }
+
+    /* Links */
+    a { color: #60a5fa; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Launch button */
+    .launch-section {
+      width: 100%; max-width: 900px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%);
+      border: 1px solid #3b82f6;
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .launch-section h2 {
+      font-size: 1.3rem; font-weight: 700; color: #fff;
+    }
+    .launch-section p { color: #94a3b8; font-size: 0.9rem; text-align: center; }
+
+    .btn-launch {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 36px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-launch:hover { background: #1d4ed8; transform: translateY(-1px); text-decoration: none; }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Footer */
+    footer {
+      color: #475569;
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    /* Copied toast */
+    #toast {
+      position: fixed;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #86efac;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <div class="logo-icon">🔧</div>
+    <h1>Virtual<span>Engineer</span></h1>
+  </div>
+  <p class="tagline">Gestione intelligente dei cantieri con intelligenza artificiale</p>
+
+  <div class="steps">
+
+    <!-- Step 1 -->
+    <div class="card">
+      <div class="step-num">1</div>
+      <span class="badge badge-amber">Prima installazione</span>
+      <h2>Installa le dipendenze</h2>
+      <p>Esegui questo comando <strong>una sola volta</strong> dalla cartella del progetto. Installerà tutto automaticamente.</p>
+      <div class="code-block" onclick="copyText('./install.sh', this)">
+        <span>./install.sh</span>
+        <button class="copy-btn">copia</button>
+      </div>
+      <p style="margin-top:12px; font-size:0.78rem;">
+        Requisiti: <a href="https://nodejs.org" target="_blank">Node.js</a> e
+        <a href="https://python.org" target="_blank">Python 3</a>
+      </p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="card highlight">
+      <div class="step-num">2</div>
+      <span class="badge badge-blue">Ogni volta</span>
+      <h2>Avvia l'applicazione</h2>
+      <p>Questo comando avvia backend e frontend insieme e apre il browser automaticamente.</p>
+      <div class="code-block" onclick="copyText('./start.sh', this)">
+        <span>./start.sh</span>
+        <button class="copy-btn">copia</button>
+      </div>
+      <p style="margin-top:12px; font-size:0.78rem;">
+        Oppure apri manualmente: <a href="http://localhost:5173" target="_blank">localhost:5173</a>
+      </p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card">
+      <div class="step-num">3</div>
+      <span class="badge badge-green">Configurazione AI</span>
+      <h2>Aggiungi la chiave API</h2>
+      <p>VirtualEngineer usa Groq AI (gratuito). Ottieni la tua chiave e inseriscila nelle Impostazioni.</p>
+      <a href="https://console.groq.com" target="_blank" class="code-block" style="color:#7dd3fc; text-decoration:none; display:flex; justify-content:space-between;">
+        <span>console.groq.com →</span>
+        <span style="font-size:0.75rem; color:#64748b;">apri sito</span>
+      </a>
+      <p style="margin-top:12px; font-size:0.78rem;">
+        Oppure incolla la chiave in <code style="color:#fcd34d;">backend/.env</code>
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Launch section -->
+  <div class="launch-section">
+    <h2>App già in esecuzione?</h2>
+    <p>Se hai già avviato <code>./start.sh</code>, clicca per aprire VirtualEngineer.</p>
+    <a href="http://localhost:5173" class="btn-launch" target="_blank">
+      <span class="status-dot"></span>Apri VirtualEngineer
+    </a>
+  </div>
+
+  <!-- Troubleshooting -->
+  <div class="steps" style="margin-bottom:32px;">
+    <div class="card" style="grid-column: 1 / -1;">
+      <h2 style="margin-bottom:12px;">❓ Problemi comuni</h2>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:16px;">
+        <div>
+          <p style="color:#fcd34d; font-weight:600; font-size:0.85rem; margin-bottom:4px;">
+            "Cannot find package.json"
+          </p>
+          <p style="font-size:0.82rem;">Stai eseguendo il comando dalla cartella sbagliata. Spostati prima nella cartella del progetto:</p>
+          <div class="code-block" style="margin-top:8px;" onclick="copyText('cd ~/Desktop/Projects/VirtualEngineer', this)">
+            <span>cd ~/Desktop/Projects/VirtualEngineer</span>
+            <button class="copy-btn">copia</button>
+          </div>
+        </div>
+        <div>
+          <p style="color:#fcd34d; font-weight:600; font-size:0.85rem; margin-bottom:4px;">
+            "Permission denied" su ./start.sh
+          </p>
+          <p style="font-size:0.82rem;">Lo script non ha i permessi di esecuzione. Esegui:</p>
+          <div class="code-block" style="margin-top:8px;" onclick="copyText('chmod +x install.sh start.sh', this)">
+            <span>chmod +x install.sh start.sh</span>
+            <button class="copy-btn">copia</button>
+          </div>
+        </div>
+        <div>
+          <p style="color:#fcd34d; font-weight:600; font-size:0.85rem; margin-bottom:4px;">
+            Porta 8000 o 5173 già in uso
+          </p>
+          <p style="font-size:0.82rem;">Termina i processi che occupano le porte:</p>
+          <div class="code-block" style="margin-top:8px;" onclick="copyText('lsof -ti:8000,5173 | xargs kill -9', this)">
+            <span>lsof -ti:8000,5173 | xargs kill -9</span>
+            <button class="copy-btn">copia</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    VirtualEngineer v1.1.0 · React + FastAPI · AI by Groq
+  </footer>
+
+  <div id="toast">✓ Copiato negli appunti</div>
+
+  <script>
+    function copyText(text, el) {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = el.querySelector('.copy-btn')
+        if (btn) { const orig = btn.textContent; btn.textContent = '✓'; setTimeout(() => btn.textContent = orig, 1500) }
+        const toast = document.getElementById('toast')
+        toast.classList.add('show')
+        setTimeout(() => toast.classList.remove('show'), 2000)
+      })
+    }
+  </script>
+
+</body>
+</html>
