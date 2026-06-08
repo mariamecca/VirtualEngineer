@@ -75,7 +75,12 @@ export default function Daily() {
         e.preventDefault()
         setShowAddForm(true)
       }
-      if (e.key === 'Escape') setShowAddForm(false)
+      if (e.key === 'Escape') {
+        setShowAddForm(false)
+        setNewTaskTitle('')
+        setNewTaskDescription('')
+        setNewTaskPriority('media')
+      }
       if (e.key === 'ArrowLeft') setSelectedDate(d => format(subDays(parseISO(d), 1), 'yyyy-MM-dd'))
       if (e.key === 'ArrowRight') setSelectedDate(d => {
         const next = format(addDays(parseISO(d), 1), 'yyyy-MM-dd')
