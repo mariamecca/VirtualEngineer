@@ -62,10 +62,11 @@ npm run dev:web &
 FRONTEND_PID=$!
 
 echo -n "  In attesa del frontend"
-for i in $(seq 1 20); do
+for i in $(seq 1 30); do
     sleep 1; echo -n "."
-    if curl -s http://localhost:5173 &>/dev/null; then break; fi
+    if nc -z localhost 5173 2>/dev/null; then break; fi
 done
+sleep 1
 echo ""
 print_ok "Frontend pronto (PID $FRONTEND_PID)"
 
