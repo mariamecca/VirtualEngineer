@@ -56,7 +56,13 @@ echo -e "\n${GREEN}✓ Backend pronto${RESET}"
 echo -e "${CYAN}▶ Avvio frontend...${RESET}"
 npm run dev:web &
 FRONTEND_PID=$!
-sleep 3
+
+echo -n "  Attendere"
+for i in $(seq 1 20); do
+    sleep 1; echo -n "."
+    if curl -s http://localhost:5173 &>/dev/null; then break; fi
+done
+echo -e "\n${GREEN}✓ Frontend pronto${RESET}"
 
 # ── Apri browser ─────────────────────────────────────────────
 open http://localhost:5173

@@ -61,11 +61,15 @@ echo -e "\n${CYAN}▶ Avvio frontend (porta 5173)...${RESET}"
 npm run dev:web &
 FRONTEND_PID=$!
 
-sleep 2
-print_ok "Frontend avviato (PID $FRONTEND_PID)"
+echo -n "  In attesa del frontend"
+for i in $(seq 1 20); do
+    sleep 1; echo -n "."
+    if curl -s http://localhost:5173 &>/dev/null; then break; fi
+done
+echo ""
+print_ok "Frontend pronto (PID $FRONTEND_PID)"
 
 # ── Apri il browser ─────────────────────────────────────────
-sleep 1
 echo -e "\n${CYAN}▶ Apertura browser...${RESET}"
 if command -v open &>/dev/null; then
     open http://localhost:5173
