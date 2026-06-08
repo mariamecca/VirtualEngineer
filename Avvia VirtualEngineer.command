@@ -18,6 +18,17 @@ echo -e "${BOLD}================================================${RESET}"
 echo -e "${BOLD}   VirtualEngineer 🏗️${RESET}"
 echo -e "${BOLD}================================================${RESET}\n"
 
+# ── Libera le porte (termina processi precedenti) ────────────
+echo -e "${CYAN}▶ Pulizia processi precedenti...${RESET}"
+for PORT in 8000 5173; do
+    PIDS=$(lsof -ti :$PORT 2>/dev/null)
+    if [ -n "$PIDS" ]; then
+        echo "  Terminazione processo su porta $PORT (PID $PIDS)"
+        echo "$PIDS" | xargs kill -9 2>/dev/null
+        sleep 0.5
+    fi
+done
+
 # ── Controlla installazione ──────────────────────────────────
 if [ ! -d "node_modules" ]; then
     echo -e "${YELLOW}Prima installazione in corso...${RESET}"
