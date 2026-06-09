@@ -181,6 +181,10 @@ export default function Daily() {
       const updatedTasks = tasks.filter(t => t.id !== taskId)
       setTasks(updatedTasks)
       updateProjectProgress(updatedTasks)
+      if (editingTaskId === taskId) {
+        setEditingTaskId(null)
+        setEditingTaskTitle('')
+      }
       toast.success('Attività eliminata')
     } catch { toast.error('Errore nell\'eliminazione') }
   }
