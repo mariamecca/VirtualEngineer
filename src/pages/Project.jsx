@@ -43,6 +43,8 @@ export default function Project() {
   useEffect(() => {
     setTab('overview')
     setEditingPhase(false)
+    setOptimizations(null)
+    setChatMessages([])
     Promise.all([
       projectsAPI.getById(id).then(r => {
         setProject(r.data)
