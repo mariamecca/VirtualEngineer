@@ -61,6 +61,7 @@ export default function Daily() {
 
   useEffect(() => {
     if (currentProject) {
+      setWeekStats([])
       tasksAPI.getCalendar(currentProject.id)
         .then(res => setWeekStats(res.data))
         .catch(() => {})
