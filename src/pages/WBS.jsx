@@ -147,6 +147,7 @@ export default function WBS() {
             }
           })
         }
+        if (toDelete.has(editingId)) setEditingId(null)
         return prev.filter(i => !toDelete.has(i.id))
       })
       toast.success('WBS eliminata')
