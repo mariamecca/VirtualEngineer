@@ -50,6 +50,7 @@ export default function Daily() {
 
   useEffect(() => {
     if (currentProject) {
+      setReport(null)
       loadTasks()
       loadReport()
       setTaskSearch('')
