@@ -18,6 +18,7 @@ export default function Calendar() {
   useEffect(() => {
     if (currentProject) {
       setCalendarStats([])
+      setCurrentMonth(new Date())
       loadStats()
     }
   }, [currentProject])
