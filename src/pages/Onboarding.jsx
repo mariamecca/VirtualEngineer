@@ -12,6 +12,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(isImport ? 'upload' : 'form')
   const [files, setFiles] = useState([])
   const [analyzing, setAnalyzing] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [aiSuggestion, setAiSuggestion] = useState(null)
   const [form, setForm] = useState({
     name: '', location: '', description: '', budget: '', deadline: '',
@@ -49,6 +50,8 @@ export default function Onboarding() {
   }
 
   const createProject = async () => {
+    if (creating) return
+    setCreating(true)
     try {
       const res = await projectsAPI.create({ ...form, budget: parseFloat(form.budget) || 0 })
       addProject(res.data)
@@ -57,6 +60,7 @@ export default function Onboarding() {
       navigate(`/project/${res.data.id}`)
     } catch (e) {
       toast.error('Errore nella creazione del progetto')
+      setCreating(false)
     }
   }
 
@@ -171,8 +175,8 @@ export default function Onboarding() {
 
           <div className="flex gap-3">
             {isImport && <button onClick={() => setStep('upload')} className="btn-secondary">Indietro</button>}
-            <button onClick={createProject} className="btn-primary flex-1">
-              Crea cantiere
+            <button onClick={createProject} disabled={creating} className="btn-primary flex-1">
+              {creating ? 'Creazione in corso...' : 'Crea cantiere'}
             </button>
           </div>
         </div>
