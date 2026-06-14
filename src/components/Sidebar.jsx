@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
   HomeIcon,
   CalendarIcon,
@@ -21,6 +21,7 @@ const navItems = [
 
 export default function Sidebar() {
   const { currentProject } = useProjectStore()
+  const location = useLocation()
   const [overdueCount, setOverdueCount] = useState(0)
   const [todayTaskStats, setTodayTaskStats] = useState(null)
 
@@ -45,7 +46,7 @@ export default function Sidebar() {
         setTodayTaskStats({ completed, total: tasks.length })
       })
       .catch(() => {})
-  }, [currentProject])
+  }, [currentProject, location.pathname])
 
   return (
     <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
