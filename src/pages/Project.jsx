@@ -107,7 +107,7 @@ export default function Project() {
     } catch { toast.error('Errore AI') }
   }
 
-  const copySummary = () => {
+  const copySummary = async () => {
     if (!project) return
     const lines = [
       `Progetto: ${project.name}`,
@@ -119,8 +119,10 @@ export default function Project() {
       `Avanzamento: ${project.progress || 0}%`,
       project.description ? `\n${project.description}` : null,
     ].filter(Boolean)
-    navigator.clipboard.writeText(lines.join('\n'))
-    toast.success('Riepilogo copiato')
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'))
+      toast.success('Riepilogo copiato')
+    } catch { toast.error('Impossibile copiare negli appunti') }
   }
 
   const savePhase = async () => {

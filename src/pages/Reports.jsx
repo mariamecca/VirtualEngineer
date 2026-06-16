@@ -39,13 +39,15 @@ export default function Reports() {
   const expandAll = () => setExpanded(Object.fromEntries(reports.map(r => [r.id, true])))
   const collapseAll = () => setExpanded({})
 
-  const copyReport = (e, report) => {
+  const copyReport = async (e, report) => {
     e.stopPropagation()
     const lines = [`RESOCONTO — ${report.date}`, '='.repeat(40)]
     if (report.summary) lines.push('', 'ANALISI:', report.summary)
     if (report.next_day_preview) lines.push('', 'PRIORITÀ DOMANI:', report.next_day_preview)
-    navigator.clipboard.writeText(lines.join('\n'))
-    toast.success('Resoconto copiato negli appunti')
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'))
+      toast.success('Resoconto copiato negli appunti')
+    } catch { toast.error('Impossibile copiare negli appunti') }
   }
 
   const deleteReport = async (e, id) => {

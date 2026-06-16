@@ -223,7 +223,7 @@ export default function Daily() {
     finally { setReportLoading(false) }
   }
 
-  const copyTaskList = () => {
+  const copyTaskList = async () => {
     if (!currentProject) return
     const dateLabel = format(parseISO(selectedDate), 'd MMMM yyyy', { locale: it })
     const lines = [`Attività del ${dateLabel} — ${currentProject.name}`, '']
@@ -233,8 +233,10 @@ export default function Daily() {
       lines.push(`${check} ${t.title}${prio}`)
     })
     lines.push('', `Completate: ${completedCount}/${tasks.length} (${progress}%)`)
-    navigator.clipboard.writeText(lines.join('\n'))
-    toast.success('Lista copiata negli appunti')
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'))
+      toast.success('Lista copiata negli appunti')
+    } catch { toast.error('Impossibile copiare negli appunti') }
   }
 
   const exportReport = () => {
