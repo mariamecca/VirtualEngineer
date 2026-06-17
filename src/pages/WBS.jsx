@@ -37,6 +37,7 @@ export default function WBS() {
       setExpanded({})
       setEditingId(null)
       setShowAddForm(false)
+      setForm({ code: '', title: '', description: '', budget: '', start_date: '', end_date: '', parent_id: '' })
       setWbsSearch('')
       setWbsFilter('tutti')
       setSchedule(null)
