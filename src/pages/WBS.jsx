@@ -22,6 +22,7 @@ export default function WBS() {
   const [expanded, setExpanded] = useState({})
   const [schedulingLoading, setSchedulingLoading] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [addingWBS, setAddingWBS] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [newChecklistInputs, setNewChecklistInputs] = useState({})
   const [form, setForm] = useState({
@@ -68,6 +69,8 @@ export default function WBS() {
       toast.error('Codice e titolo sono obbligatori')
       return
     }
+    if (addingWBS) return
+    setAddingWBS(true)
     try {
       const res = await wbsAPI.create({
         project_id: currentProject.id,
@@ -84,6 +87,7 @@ export default function WBS() {
       setShowAddForm(false)
       toast.success('WBS aggiunta')
     } catch { toast.error('Errore') }
+    finally { setAddingWBS(false) }
   }
 
   const startEdit = (item) => {
@@ -455,9 +459,10 @@ export default function WBS() {
                 <button
                   onClick={addWBS}
                   onKeyDown={e => e.key === 'Enter' && addWBS()}
+                  disabled={addingWBS}
                   className="btn-primary text-sm"
                 >
-                  Aggiungi
+                  {addingWBS ? '...' : 'Aggiungi'}
                 </button>
                 <button onClick={() => setShowAddForm(false)} className="btn-secondary text-sm">Annulla</button>
               </div>
