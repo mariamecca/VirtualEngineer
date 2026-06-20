@@ -13,6 +13,7 @@ export default function Project() {
   const [project, setProject] = useState(null)
   const [files, setFiles] = useState([])
   const [optimizations, setOptimizations] = useState(null)
+  const [optimizationsLoading, setOptimizationsLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [tab, setTab] = useState('overview')
   const [editForm, setEditForm] = useState({})
@@ -101,10 +102,13 @@ export default function Project() {
   }
 
   const getOptimizations = async () => {
+    if (optimizationsLoading) return
+    setOptimizationsLoading(true)
     try {
       const res = await aiAPI.getOptimizations(id)
       setOptimizations(res.data)
     } catch { toast.error('Errore AI') }
+    finally { setOptimizationsLoading(false) }
   }
 
   const copySummary = async () => {
@@ -538,15 +542,15 @@ export default function Project() {
             <div className="text-center py-12">
               <SparklesIcon className="w-12 h-12 text-gray-700 mx-auto mb-3" />
               <p className="text-gray-400 mb-4">Ottieni suggerimenti AI per ottimizzare il cantiere</p>
-              <button onClick={getOptimizations} className="btn-primary">
-                Analizza con AI
+              <button onClick={getOptimizations} disabled={optimizationsLoading} className="btn-primary">
+                {optimizationsLoading ? 'Analisi in corso...' : 'Analizza con AI'}
               </button>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="flex justify-end">
-                <button onClick={getOptimizations} className="btn-secondary text-sm">
-                  Rigenera suggerimenti
+                <button onClick={getOptimizations} disabled={optimizationsLoading} className="btn-secondary text-sm">
+                  {optimizationsLoading ? 'Analisi in corso...' : 'Rigenera suggerimenti'}
                 </button>
               </div>
               {optimizations.suggestions?.map((s, i) => (
