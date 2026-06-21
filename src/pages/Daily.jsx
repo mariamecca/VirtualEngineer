@@ -13,6 +13,7 @@ export default function Daily() {
   const today = format(new Date(), 'yyyy-MM-dd')
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(false)
+  const [batchLoading, setBatchLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [report, setReport] = useState(null)
   const [reportLoading, setReportLoading] = useState(false)
@@ -135,7 +136,8 @@ export default function Daily() {
 
   const markAllDone = async () => {
     const incomplete = tasks.filter(t => !t.completed)
-    if (!incomplete.length) return
+    if (!incomplete.length || batchLoading) return
+    setBatchLoading(true)
     try {
       await Promise.all(incomplete.map(t => tasksAPI.updateTask(t.id, { completed: true })))
       const updated = tasks.map(t => ({ ...t, completed: true }))
@@ -143,11 +145,13 @@ export default function Daily() {
       updateProjectProgress(updated)
       toast.success('Tutte le attività completate')
     } catch { toast.error('Errore nell\'aggiornamento') }
+    finally { setBatchLoading(false) }
   }
 
   const resetAll = async () => {
     const complete = tasks.filter(t => t.completed)
-    if (!complete.length) return
+    if (!complete.length || batchLoading) return
+    setBatchLoading(true)
     try {
       await Promise.all(complete.map(t => tasksAPI.updateTask(t.id, { completed: false })))
       const updated = tasks.map(t => ({ ...t, completed: false }))
@@ -155,6 +159,7 @@ export default function Daily() {
       updateProjectProgress(updated)
       toast.success('Attività reimpostate')
     } catch { toast.error('Errore nell\'aggiornamento') }
+    finally { setBatchLoading(false) }
   }
 
   const toggleTask = async (task) => {
@@ -432,7 +437,8 @@ export default function Daily() {
               {progress < 100 && (
                 <button
                   onClick={markAllDone}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-green-700 text-green-400 hover:bg-green-900/30 transition-colors"
+                  disabled={batchLoading}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-green-700 text-green-400 hover:bg-green-900/30 transition-colors disabled:opacity-50"
                 >
                   Segna tutti
                 </button>
@@ -440,7 +446,8 @@ export default function Daily() {
               {progress > 0 && (
                 <button
                   onClick={resetAll}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-gray-700 text-gray-500 hover:border-gray-500 hover:text-gray-300 transition-colors"
+                  disabled={batchLoading}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-gray-700 text-gray-500 hover:border-gray-500 hover:text-gray-300 transition-colors disabled:opacity-50"
                 >
                   Reimposta
                 </button>
