@@ -31,6 +31,7 @@ export default function Daily() {
   const [noteText, setNoteText] = useState('')
 
   const taskListRef = useRef(null)
+  const togglingTaskIds = useRef(new Set())
   const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
   const [noteSaved, setNoteSaved] = useState(false)
 
@@ -163,12 +164,15 @@ export default function Daily() {
   }
 
   const toggleTask = async (task) => {
+    if (togglingTaskIds.current.has(task.id)) return
+    togglingTaskIds.current.add(task.id)
     try {
       await tasksAPI.updateTask(task.id, { completed: !task.completed })
       const updatedTasks = tasks.map(t => t.id === task.id ? { ...t, completed: !t.completed } : t)
       setTasks(updatedTasks)
       updateProjectProgress(updatedTasks)
     } catch { toast.error('Errore nell\'aggiornamento') }
+    finally { togglingTaskIds.current.delete(task.id) }
   }
 
   const saveTaskTitle = async (taskId) => {
