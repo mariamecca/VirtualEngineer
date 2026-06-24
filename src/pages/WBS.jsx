@@ -24,6 +24,9 @@ export default function WBS() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [addingWBS, setAddingWBS] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [savingEditId, setSavingEditId] = useState(null)
+  const togglingChecklistIds = useRef(new Set())
+  const duplicatingIds = useRef(new Set())
   const [newChecklistInputs, setNewChecklistInputs] = useState({})
   const [form, setForm] = useState({
     code: '', title: '', description: '', budget: '', start_date: '', end_date: '', parent_id: ''
@@ -99,6 +102,8 @@ export default function WBS() {
   }
 
   const saveEdit = async (id) => {
+    if (savingEditId === id) return
+    setSavingEditId(id)
     try {
       const res = await wbsAPI.update(id, {
         code: editForm.code, title: editForm.title, description: editForm.description,
@@ -110,9 +115,12 @@ export default function WBS() {
       setEditingId(null)
       toast.success('Salvato')
     } catch { toast.error('Errore') }
+    finally { setSavingEditId(null) }
   }
 
   const duplicateWBS = async (item) => {
+    if (duplicatingIds.current.has(item.id)) return
+    duplicatingIds.current.add(item.id)
     try {
       const res = await wbsAPI.create({
         project_id: currentProject.id,
@@ -127,6 +135,7 @@ export default function WBS() {
       setItems(prev => [...prev, { ...res.data, checklist: [] }])
       toast.success('WBS duplicata')
     } catch { toast.error('Errore nella duplicazione') }
+    finally { duplicatingIds.current.delete(item.id) }
   }
 
   const completeWBS = async (id) => {
@@ -160,6 +169,8 @@ export default function WBS() {
   }
 
   const toggleChecklist = async (wbsId, checklistId, completed) => {
+    if (togglingChecklistIds.current.has(checklistId)) return
+    togglingChecklistIds.current.add(checklistId)
     try {
       await wbsAPI.updateChecklist(checklistId, { completed: completed ? 1 : 0 })
       setItems(prev => prev.map(i => i.id === wbsId
@@ -167,6 +178,7 @@ export default function WBS() {
         : i
       ))
     } catch { toast.error('Errore') }
+    finally { togglingChecklistIds.current.delete(checklistId) }
   }
 
   const addChecklistItem = async (wbsId) => {
@@ -497,6 +509,7 @@ export default function WBS() {
               setEditForm={setEditForm}
               onStartEdit={startEdit}
               onSaveEdit={saveEdit}
+              savingEditId={savingEditId}
               onCancelEdit={() => setEditingId(null)}
               onDelete={deleteWBS}
               onDuplicate={duplicateWBS}
@@ -610,7 +623,7 @@ export default function WBS() {
 
 function WBSItem({
   item, children, allItems, colorClass, expanded, setExpanded,
-  editingId, editForm, setEditForm, onStartEdit, onSaveEdit, onCancelEdit,
+  editingId, editForm, setEditForm, onStartEdit, onSaveEdit, savingEditId, onCancelEdit,
   onDelete, onDuplicate, onComplete, onProgressUpdate, onToggleChecklist, onAddChecklist, onDeleteChecklist,
   newChecklistInputs, setNewChecklistInputs
 }) {
@@ -657,8 +670,8 @@ function WBSItem({
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => onSaveEdit(item.id)} className="btn-primary text-sm flex items-center gap-1">
-              <CheckIcon className="w-3.5 h-3.5" /> Salva
+            <button onClick={() => onSaveEdit(item.id)} disabled={savingEditId === item.id} className="btn-primary text-sm flex items-center gap-1">
+              <CheckIcon className="w-3.5 h-3.5" /> {savingEditId === item.id ? '...' : 'Salva'}
             </button>
             <button onClick={onCancelEdit} className="btn-secondary text-sm flex items-center gap-1">
               <XMarkIcon className="w-3.5 h-3.5" /> Annulla
@@ -841,6 +854,7 @@ function WBSItem({
                   setEditForm={setEditForm}
                   onStartEdit={onStartEdit}
                   onSaveEdit={onSaveEdit}
+                  savingEditId={savingEditId}
                   onCancelEdit={onCancelEdit}
                   onDelete={onDelete}
                   onDuplicate={onDuplicate}
