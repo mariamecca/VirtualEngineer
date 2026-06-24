@@ -15,6 +15,7 @@ export default function Project() {
   const [optimizations, setOptimizations] = useState(null)
   const [optimizationsLoading, setOptimizationsLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const deletingFileIds = useRef(new Set())
   const [tab, setTab] = useState('overview')
   const [editForm, setEditForm] = useState({})
   const [savingEdit, setSavingEdit] = useState(false)
@@ -77,11 +78,14 @@ export default function Project() {
   })
 
   const deleteFile = async (fileId) => {
+    if (deletingFileIds.current.has(fileId)) return
+    deletingFileIds.current.add(fileId)
     try {
       await filesAPI.delete(fileId)
       setFiles(prev => prev.filter(f => f.id !== fileId))
       toast.success('File eliminato')
     } catch { toast.error('Errore nell\'eliminazione') }
+    finally { deletingFileIds.current.delete(fileId) }
   }
 
   const sendChat = async () => {
