@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PlusIcon, FolderOpenIcon, ArrowUpTrayIcon, ExclamationTriangleIcon, CheckBadgeIcon, MagnifyingGlassIcon, TrashIcon, CalendarDaysIcon, Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline'
 import { useProjectStore } from '../store/projectStore'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { projectsAPI } from '../utils/api'
 import toast from 'react-hot-toast'
 
@@ -13,10 +13,13 @@ export default function Home() {
   const [sortBy, setSortBy] = useState('nome')
   const [tab, setTab] = useState('attivi')
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const deletingProjectIds = useRef(new Set())
   const [viewMode, setViewMode] = useState('list')
 
   const deleteProject = async (e, id) => {
     e.stopPropagation()
+    if (deletingProjectIds.current.has(id)) return
+    deletingProjectIds.current.add(id)
     try {
       await projectsAPI.delete(id)
       setServerProjects(prev => prev.filter(p => p.id !== id))
@@ -26,6 +29,7 @@ export default function Home() {
       toast.error('Errore nell\'eliminazione')
     } finally {
       setConfirmDeleteId(null)
+      deletingProjectIds.current.delete(id)
     }
   }
 
