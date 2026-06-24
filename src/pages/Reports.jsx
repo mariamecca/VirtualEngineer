@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { SparklesIcon, ChevronDownIcon, ChevronRightIcon, DocumentTextIcon, TrashIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
@@ -14,6 +14,7 @@ export default function Reports() {
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState({})
   const [monthFilter, setMonthFilter] = useState('all')
+  const deletingReportIds = useRef(new Set())
 
   useEffect(() => {
     if (currentProject) {
@@ -52,12 +53,16 @@ export default function Reports() {
 
   const deleteReport = async (e, id) => {
     e.stopPropagation()
+    if (deletingReportIds.current.has(id)) return
+    deletingReportIds.current.add(id)
     try {
       await reportsAPI.delete(id)
       setReports(prev => prev.filter(r => r.id !== id))
       toast.success('Resoconto eliminato')
     } catch {
       toast.error('Errore nell\'eliminazione')
+    } finally {
+      deletingReportIds.current.delete(id)
     }
   }
 
