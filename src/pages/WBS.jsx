@@ -28,6 +28,7 @@ export default function WBS() {
   const togglingChecklistIds = useRef(new Set())
   const duplicatingIds = useRef(new Set())
   const deletingWBSIds = useRef(new Set())
+  const deletingChecklistIds = useRef(new Set())
   const [newChecklistInputs, setNewChecklistInputs] = useState({})
   const [form, setForm] = useState({
     code: '', title: '', description: '', budget: '', start_date: '', end_date: '', parent_id: ''
@@ -199,12 +200,15 @@ export default function WBS() {
   }
 
   const deleteChecklistItem = async (checklistId) => {
+    if (deletingChecklistIds.current.has(checklistId)) return
+    deletingChecklistIds.current.add(checklistId)
     try {
       await wbsAPI.deleteChecklist(checklistId)
       setItems(prev => prev.map(i => ({
         ...i, checklist: (i.checklist || []).filter(c => c.id !== checklistId)
       })))
     } catch { toast.error('Errore') }
+    finally { deletingChecklistIds.current.delete(checklistId) }
   }
 
   const exportCSV = () => {
