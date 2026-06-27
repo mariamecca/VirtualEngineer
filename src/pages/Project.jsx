@@ -24,6 +24,7 @@ export default function Project() {
   const [chatLoading, setChatLoading] = useState(false)
   const [progressHistory, setProgressHistory] = useState([])
   const [editingPhase, setEditingPhase] = useState(false)
+  const [savingPhase, setSavingPhase] = useState(false)
   const [phaseInput, setPhaseInput] = useState('')
   const [stickyNote, setStickyNote] = useState('')
   const [stickyNoteSaved, setStickyNoteSaved] = useState(false)
@@ -134,6 +135,8 @@ export default function Project() {
   }
 
   const savePhase = async () => {
+    if (savingPhase) return
+    setSavingPhase(true)
     try {
       const res = await projectsAPI.update(id, { current_phase: phaseInput.trim() })
       setProject(res.data)
@@ -141,6 +144,7 @@ export default function Project() {
       updateProject(parseInt(id), { current_phase: res.data.current_phase })
       setEditingPhase(false)
     } catch { toast.error('Errore nel salvataggio') }
+    finally { setSavingPhase(false) }
   }
 
   const saveEdit = async () => {
@@ -199,7 +203,7 @@ export default function Project() {
                 onKeyDown={e => { if (e.key === 'Enter') savePhase(); if (e.key === 'Escape') setEditingPhase(false) }}
                 autoFocus
               />
-              <button onClick={savePhase} className="p-1 text-green-400 hover:text-green-300">
+              <button onClick={savePhase} disabled={savingPhase} className="p-1 text-green-400 hover:text-green-300 disabled:opacity-50">
                 <CheckIcon className="w-4 h-4" />
               </button>
               <button onClick={() => setEditingPhase(false)} className="p-1 text-gray-500 hover:text-gray-300">
