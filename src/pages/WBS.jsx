@@ -189,6 +189,9 @@ export default function WBS() {
   const addChecklistItem = async (wbsId) => {
     const title = (newChecklistInputs[wbsId] || '').trim()
     if (!title) return
+    const key = `${wbsId}:${title}`
+    if (togglingChecklistIds.current.has(key)) return
+    togglingChecklistIds.current.add(key)
     try {
       const res = await wbsAPI.addChecklist(wbsId, { title })
       setNewChecklistInputs(prev => ({ ...prev, [wbsId]: '' }))
@@ -197,6 +200,7 @@ export default function WBS() {
         : i
       ))
     } catch { toast.error('Errore') }
+    finally { togglingChecklistIds.current.delete(key) }
   }
 
   const deleteChecklistItem = async (checklistId) => {
