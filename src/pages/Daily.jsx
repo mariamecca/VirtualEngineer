@@ -32,6 +32,7 @@ export default function Daily() {
 
   const taskListRef = useRef(null)
   const togglingTaskIds = useRef(new Set())
+  const deletingTaskIds = useRef(new Set())
   const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
   const [noteSaved, setNoteSaved] = useState(false)
 
@@ -187,6 +188,8 @@ export default function Daily() {
 
   const deleteTask = async (e, taskId) => {
     e.stopPropagation()
+    if (deletingTaskIds.current.has(taskId)) return
+    deletingTaskIds.current.add(taskId)
     try {
       await tasksAPI.deleteTask(taskId)
       const updatedTasks = tasks.filter(t => t.id !== taskId)
@@ -198,6 +201,7 @@ export default function Daily() {
       }
       toast.success('Attività eliminata')
     } catch { toast.error('Errore nell\'eliminazione') }
+    finally { deletingTaskIds.current.delete(taskId) }
   }
 
   const addTask = async () => {
