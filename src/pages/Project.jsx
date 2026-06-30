@@ -48,6 +48,8 @@ export default function Project() {
     setEditingPhase(false)
     setOptimizations(null)
     setChatMessages([])
+    setProgressHistory([])
+    setFiles([])
     Promise.all([
       projectsAPI.getById(id).then(r => {
         setProject(r.data)
