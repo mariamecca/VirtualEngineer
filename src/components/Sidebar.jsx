@@ -33,7 +33,7 @@ export default function Sidebar() {
         setOverdueCount(count)
       })
       .catch(() => {})
-  }, [])
+  }, [location.pathname])
 
   useEffect(() => {
     if (!currentProject) { setTodayTaskStats(null); return }
