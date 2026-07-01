@@ -35,6 +35,7 @@ export default function Settings() {
     }
   }
 
+  const [saving, setSaving] = useState(false)
   const [clearConfirm, setClearConfirm] = useState(false)
 
   const clearLocalData = () => {
@@ -44,11 +45,14 @@ export default function Settings() {
   }
 
   const save = async () => {
+    if (saving) return
+    setSaving(true)
     try {
       await axios.post('http://localhost:8000/api/settings', { groq_api_key: apiKey, groq_model: model })
       toast.success('Impostazioni salvate')
       setSaved(true)
     } catch { toast.error('Errore nel salvataggio') }
+    finally { setSaving(false) }
   }
 
   return (
@@ -86,7 +90,7 @@ export default function Settings() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <button onClick={save} className="btn-primary">
+          <button onClick={save} disabled={saving} className="btn-primary">
             {saved ? 'Salvato!' : 'Salva impostazioni'}
           </button>
           <button onClick={testConnection} disabled={testing} className="btn-secondary flex items-center gap-2">
