@@ -28,6 +28,7 @@ export default function WBS() {
   const togglingChecklistIds = useRef(new Set())
   const duplicatingIds = useRef(new Set())
   const deletingWBSIds = useRef(new Set())
+  const completingWBSIds = useRef(new Set())
   const deletingChecklistIds = useRef(new Set())
   const [newChecklistInputs, setNewChecklistInputs] = useState({})
   const [form, setForm] = useState({
@@ -141,11 +142,14 @@ export default function WBS() {
   }
 
   const completeWBS = async (id) => {
+    if (completingWBSIds.current.has(id)) return
+    completingWBSIds.current.add(id)
     try {
       const res = await wbsAPI.update(id, { progress: 100 })
       setItems(prev => prev.map(i => i.id === id ? { ...res.data, checklist: i.checklist } : i))
       toast.success('WBS completata al 100%')
     } catch { toast.error('Errore') }
+    finally { completingWBSIds.current.delete(id) }
   }
 
   const deleteWBS = async (id) => {
