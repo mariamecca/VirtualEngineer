@@ -18,6 +18,7 @@ export default function Reports() {
 
   useEffect(() => {
     if (currentProject) {
+      setReports([])
       setExpanded({})
       setMonthFilter('all')
       loadReports()
