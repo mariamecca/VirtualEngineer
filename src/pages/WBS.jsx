@@ -652,6 +652,10 @@ function WBSItem({
   const [progressVal, setProgressVal] = useState(item.progress)
   const progressEscaped = useRef(false)
 
+  useEffect(() => {
+    if (!editingProgress) setProgressVal(item.progress)
+  }, [item.progress])
+
   return (
     <div className={`card border-l-4 ${colorClass} space-y-3`}>
       {/* Header */}
