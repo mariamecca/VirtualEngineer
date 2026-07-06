@@ -33,6 +33,7 @@ export default function Daily() {
   const taskListRef = useRef(null)
   const togglingTaskIds = useRef(new Set())
   const deletingTaskIds = useRef(new Set())
+  const titleEscaped = useRef(false)
   const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
   const [noteSaved, setNoteSaved] = useState(false)
 
@@ -530,10 +531,10 @@ export default function Daily() {
                         className="input text-sm w-full"
                         value={editingTaskTitle}
                         onChange={e => setEditingTaskTitle(e.target.value)}
-                        onBlur={() => saveTaskTitle(task.id)}
+                        onBlur={() => { if (!titleEscaped.current) saveTaskTitle(task.id); titleEscaped.current = false }}
                         onKeyDown={e => {
                           if (e.key === 'Enter') saveTaskTitle(task.id)
-                          if (e.key === 'Escape') { setEditingTaskId(null); setEditingTaskTitle('') }
+                          if (e.key === 'Escape') { titleEscaped.current = true; setEditingTaskId(null); setEditingTaskTitle('') }
                         }}
                         onClick={e => e.stopPropagation()}
                         autoFocus
