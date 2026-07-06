@@ -34,6 +34,7 @@ export default function Daily() {
   const togglingTaskIds = useRef(new Set())
   const deletingTaskIds = useRef(new Set())
   const titleEscaped = useRef(false)
+  const savingTitleIds = useRef(new Set())
   const noteKey = currentProject ? `note_${currentProject.id}_${selectedDate}` : null
   const [noteSaved, setNoteSaved] = useState(false)
 
@@ -180,11 +181,14 @@ export default function Daily() {
   const saveTaskTitle = async (taskId) => {
     const trimmed = editingTaskTitle.trim()
     if (!trimmed) { setEditingTaskId(null); return }
+    if (savingTitleIds.current.has(taskId)) return
+    savingTitleIds.current.add(taskId)
     try {
       await tasksAPI.updateTask(taskId, { title: trimmed })
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, title: trimmed } : t))
       setEditingTaskId(null)
     } catch { toast.error('Errore nel salvataggio') }
+    finally { savingTitleIds.current.delete(taskId) }
   }
 
   const deleteTask = async (e, taskId) => {
