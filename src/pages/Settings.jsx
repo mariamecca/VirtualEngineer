@@ -48,7 +48,9 @@ export default function Settings() {
     if (saving) return
     setSaving(true)
     try {
-      await axios.post('http://localhost:8000/api/settings', { groq_api_key: apiKey, groq_model: model })
+      const payload = { groq_model: model }
+      if (!apiKey.includes('•')) payload.groq_api_key = apiKey
+      await axios.post('http://localhost:8000/api/settings', payload)
       toast.success('Impostazioni salvate')
       setSaved(true)
     } catch { toast.error('Errore nel salvataggio') }
