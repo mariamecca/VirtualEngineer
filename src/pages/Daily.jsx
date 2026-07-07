@@ -91,8 +91,9 @@ export default function Daily() {
       }
       if (e.key === 'ArrowLeft') setSelectedDate(d => format(subDays(parseISO(d), 1), 'yyyy-MM-dd'))
       if (e.key === 'ArrowRight') setSelectedDate(d => {
+        const todayNow = format(new Date(), 'yyyy-MM-dd')
         const next = format(addDays(parseISO(d), 1), 'yyyy-MM-dd')
-        return next <= today ? next : d
+        return next <= todayNow ? next : d
       })
     }
     window.addEventListener('keydown', handler)
