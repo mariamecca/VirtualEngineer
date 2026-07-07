@@ -248,6 +248,7 @@ export default function WBS() {
 
   const generateSchedule = async () => {
     setSchedulingLoading(true)
+    setSchedule(null)
     try {
       const res = await aiAPI.generateWBSSchedule(currentProject.id)
       setSchedule(res.data)
