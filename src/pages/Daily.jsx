@@ -212,7 +212,7 @@ export default function Daily() {
   }
 
   const addTask = async () => {
-    if (!newTaskTitle.trim()) return
+    if (!newTaskTitle.trim() || addingTask) return
     setAddingTask(true)
     try {
       const res = await tasksAPI.addTask({
