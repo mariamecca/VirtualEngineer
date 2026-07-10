@@ -114,7 +114,7 @@ export default function WBS() {
         start_date: editForm.start_date || null,
         end_date: editForm.end_date || null,
       })
-      setItems(prev => prev.map(i => i.id === id ? res.data : i))
+      setItems(prev => prev.map(i => i.id === id ? { ...res.data, checklist: i.checklist } : i))
       setEditingId(null)
       toast.success('Salvato')
     } catch { toast.error('Errore') }
