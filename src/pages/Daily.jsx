@@ -289,7 +289,9 @@ export default function Daily() {
     const a = document.createElement('a')
     a.href = url
     a.download = `resoconto_${selectedDate}.txt`
+    document.body.appendChild(a)
     a.click()
+    document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
 
