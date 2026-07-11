@@ -40,6 +40,7 @@ export default function WBS() {
 
   useEffect(() => {
     if (currentProject) {
+      setItems([])
       load()
       setExpanded({})
       setEditingId(null)
