@@ -57,6 +57,8 @@ export default function Daily() {
     if (currentProject) {
       setReport(null)
       setTasks([])
+      setEditingTaskId(null)
+      setEditingTaskTitle('')
       loadTasks()
       loadReport()
       setTaskSearch('')
