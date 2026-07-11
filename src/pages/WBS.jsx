@@ -241,7 +241,9 @@ export default function WBS() {
     const a = document.createElement('a')
     a.href = url
     a.download = `wbs_${currentProject.name.replace(/\s+/g, '_')}.csv`
+    document.body.appendChild(a)
     a.click()
+    document.body.removeChild(a)
     URL.revokeObjectURL(url)
     toast.success('WBS esportata')
   }
