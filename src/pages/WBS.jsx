@@ -647,6 +647,7 @@ function WBSItem({
   onDelete, onDuplicate, onComplete, onProgressUpdate, onToggleChecklist, onAddChecklist, onDeleteChecklist,
   newChecklistInputs, setNewChecklistInputs
 }) {
+  const today = new Date().toISOString().slice(0, 10)
   const isExpanded = expanded[item.id]
   const isEditing = editingId === item.id
   const hasChildren = children.length > 0
