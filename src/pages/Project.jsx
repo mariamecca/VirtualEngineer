@@ -150,6 +150,7 @@ export default function Project() {
   }
 
   const saveEdit = async () => {
+    if (savingEdit) return
     setSavingEdit(true)
     try {
       const res = await projectsAPI.update(id, {
