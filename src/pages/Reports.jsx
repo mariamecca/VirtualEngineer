@@ -67,6 +67,12 @@ export default function Reports() {
     }
   }
 
+  useEffect(() => {
+    if (monthFilter !== 'all' && !reports.some(r => r.date.startsWith(monthFilter))) {
+      setMonthFilter('all')
+    }
+  }, [reports, monthFilter])
+
   const groupByMonth = (reports) => {
     const groups = {}
     for (const r of reports) {
