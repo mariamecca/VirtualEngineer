@@ -4,12 +4,13 @@ import { it } from 'date-fns/locale'
 import { SparklesIcon, ChevronDownIcon, ChevronRightIcon, DocumentTextIcon, TrashIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline'
 import { reportsAPI } from '../utils/api'
 import { useProjectStore } from '../store/projectStore'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 export default function Reports() {
   const { currentProject } = useProjectStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState({})
@@ -23,7 +24,7 @@ export default function Reports() {
       setMonthFilter('all')
       loadReports()
     }
-  }, [currentProject])
+  }, [currentProject, location.pathname])
 
   const loadReports = async () => {
     setLoading(true)
