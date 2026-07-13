@@ -100,12 +100,20 @@ async def generate_daily_report(req: ReportRequest, db: Session = Depends(get_db
 
     return report_data
 
+MAX_ANALYZE_FILE_SIZE = 10 * 1024 * 1024  # 10 MB per file
+ALLOWED_ANALYZE_EXTENSIONS = {".pdf", ".doc", ".docx", ".txt", ".jpg", ".jpeg", ".png"}
+
 @router.post("/analyze-documents")
 async def analyze_documents(files: List[UploadFileType] = UploadFileType(...)):
     ai = get_ai()
     contents = []
     for f in files:
-        content = await f.read()
+        ext = os.path.splitext(f.filename or "")[1].lower()
+        if ext not in ALLOWED_ANALYZE_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"Tipo file non supportato per l'analisi: {ext}")
+        content = await f.read(MAX_ANALYZE_FILE_SIZE + 1)
+        if len(content) > MAX_ANALYZE_FILE_SIZE:
+            raise HTTPException(status_code=413, detail=f"File troppo grande: {f.filename} (max 10 MB)")
         contents.append({"name": f.filename, "content": content, "type": f.content_type})
 
     result = await ai.analyze_documents(contents)
