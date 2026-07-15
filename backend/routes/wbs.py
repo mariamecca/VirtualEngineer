@@ -121,13 +121,23 @@ def delete_wbs(wbs_id: int, db: Session = Depends(get_db)):
     w = db.query(WBS).filter(WBS.id == wbs_id).first()
     if not w:
         raise HTTPException(status_code=404, detail="WBS non trovata")
-    db.query(WBSChecklist).filter(WBSChecklist.wbs_id == wbs_id).delete()
-    # delete children
-    children = db.query(WBS).filter(WBS.parent_id == wbs_id).all()
-    for child in children:
-        db.query(WBSChecklist).filter(WBSChecklist.wbs_id == child.id).delete()
-        db.delete(child)
-    db.delete(w)
+
+    # Collect all descendants recursively (BFS) to avoid orphaned grandchildren
+    ids_to_delete = [wbs_id]
+    queue = [wbs_id]
+    while queue:
+        current_id = queue.pop()
+        children = db.query(WBS).filter(WBS.parent_id == current_id).all()
+        for child in children:
+            ids_to_delete.append(child.id)
+            queue.append(child.id)
+
+    for wid in ids_to_delete:
+        db.query(WBSChecklist).filter(WBSChecklist.wbs_id == wid).delete()
+        node = db.query(WBS).filter(WBS.id == wid).first()
+        if node:
+            db.delete(node)
+
     db.commit()
     return {"ok": True}
 
