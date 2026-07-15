@@ -9,7 +9,7 @@ from models.optimization import Optimization
 from models.chat_message import ChatMessage
 from models.wbs import WBS, WBSChecklist
 from services.ai_service import AIService
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import os
 import json
 
@@ -28,7 +28,7 @@ class OptimizationRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     project_id: int
-    message: str
+    message: str = Field(..., min_length=1, max_length=4000)
 
 class WBSScheduleRequest(BaseModel):
     project_id: int
