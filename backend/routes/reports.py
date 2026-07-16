@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from models.database import get_db
 from models.report import Report
 from models.task import Task
@@ -56,6 +56,16 @@ class SnapshotRequest(BaseModel):
     project_id: int
     date: str
     progress: int
+
+    @field_validator("date")
+    @classmethod
+    def check_date(cls, v: str) -> str:
+        from datetime import datetime
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("La data deve essere nel formato YYYY-MM-DD")
+        return v
 
 
 @router.post("/progress-snapshot")

@@ -9,19 +9,35 @@ from models.optimization import Optimization
 from models.chat_message import ChatMessage
 from models.wbs import WBS, WBSChecklist
 from services.ai_service import AIService
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 import os
 import json
 
 router = APIRouter()
 
+def _validate_date(v: str) -> str:
+    from datetime import datetime
+    try:
+        datetime.strptime(v, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError("La data deve essere nel formato YYYY-MM-DD")
+    return v
+
 class DailyPlanRequest(BaseModel):
     project_id: int
     date: str
 
+    @field_validator("date")
+    @classmethod
+    def check_date(cls, v): return _validate_date(v)
+
 class ReportRequest(BaseModel):
     project_id: int
     date: str
+
+    @field_validator("date")
+    @classmethod
+    def check_date(cls, v): return _validate_date(v)
 
 class OptimizationRequest(BaseModel):
     project_id: int
