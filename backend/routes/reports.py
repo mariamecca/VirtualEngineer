@@ -26,15 +26,20 @@ def get_daily_report(project_id: int, date: str = Query(...), db: Session = Depe
 @router.get("/all/{project_id}")
 def get_all_reports(project_id: int, db: Session = Depends(get_db)):
     reports = db.query(Report).filter(Report.project_id == project_id).order_by(Report.date.desc()).all()
+    # Load all tasks in a single query and group by date (avoids N+1)
+    all_tasks = db.query(Task).filter(Task.project_id == project_id).all()
+    tasks_by_date: dict = {}
+    for t in all_tasks:
+        tasks_by_date.setdefault(t.date, []).append(t)
     result = []
     for r in reports:
-        tasks = db.query(Task).filter(Task.project_id == project_id, Task.date == r.date).all()
+        day_tasks = tasks_by_date.get(r.date, [])
         result.append({
             "id": r.id, "project_id": r.project_id, "date": r.date,
             "summary": r.summary, "next_day_preview": r.next_day_preview,
             "created_at": str(r.created_at),
-            "tasks_total": len(tasks),
-            "tasks_completed": sum(1 for t in tasks if t.completed),
+            "tasks_total": len(day_tasks),
+            "tasks_completed": sum(1 for t in day_tasks if t.completed),
         })
     return result
 
