@@ -32,7 +32,7 @@ class AIService:
 Cantiere: {project.name}
 Luogo: {project.location or 'N/D'}
 Cliente: {project.client or 'N/D'}
-Budget totale: €{project.budget:,.0f}
+Budget totale: €{project.budget or 0:,.0f}
 Scadenza: {project.deadline or 'N/D'}
 Fase attuale: {project.current_phase or 'N/D'}
 Avanzamento: {project.progress or 0}%
