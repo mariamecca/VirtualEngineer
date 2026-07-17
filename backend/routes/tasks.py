@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from models.database import get_db
 from models.task import Task
 from pydantic import BaseModel
-from typing import Optional
+from typing import Literal, Optional
 
 router = APIRouter()
 
@@ -12,7 +12,7 @@ class TaskCreate(BaseModel):
     title: str
     description: Optional[str] = None
     category: Optional[str] = None
-    priority: Optional[str] = "media"
+    priority: Literal["alta", "media", "bassa"] = "media"
     date: str
 
 class TaskUpdate(BaseModel):
