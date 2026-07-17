@@ -53,8 +53,14 @@ app.whenReady().then(() => {
   })
 })
 
+app.on('before-quit', () => {
+  if (backendProcess) {
+    backendProcess.kill()
+    backendProcess = null
+  }
+})
+
 app.on('window-all-closed', () => {
-  if (backendProcess) backendProcess.kill()
   if (process.platform !== 'darwin') app.quit()
 })
 
