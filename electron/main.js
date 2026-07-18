@@ -44,9 +44,20 @@ function createWindow() {
   }
 }
 
-app.whenReady().then(() => {
+async function waitForBackend(retries = 30, delayMs = 300) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/health')
+      if (res.ok) return
+    } catch {}
+    await new Promise(r => setTimeout(r, delayMs))
+  }
+}
+
+app.whenReady().then(async () => {
   startBackend()
-  setTimeout(createWindow, 2000)
+  await waitForBackend()
+  createWindow()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
