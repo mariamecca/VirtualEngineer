@@ -19,13 +19,15 @@ class AIService:
         return response.choices[0].message.content
 
     def _parse_json(self, text: str) -> Dict:
-        # Remove markdown code blocks if present
         text = text.replace('```json', '').replace('```', '').strip()
         start = text.find('{')
         end = text.rfind('}') + 1
         if start == -1 or end == 0:
             raise ValueError(f"Nessun JSON trovato nella risposta: {text[:200]}")
-        return json.loads(text[start:end])
+        try:
+            return json.loads(text[start:end])
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Risposta AI non valida (JSON malformato): {e}") from e
 
     def _project_context(self, project) -> str:
         return f"""
@@ -177,7 +179,7 @@ Rispondi SOLO con JSON valido:
             done_count = sum(1 for c in w.get("checklist", []) if c.get("completed"))
             wbs_text += f"""
 - [{w['code']}] {w['title']}
-  Budget: €{w.get('budget', 0):,.0f} | Inizio: {w.get('start_date') or 'N/D'} | Fine: {w.get('end_date') or 'N/D'}
+  Budget: €{w.get('budget') or 0:,.0f} | Inizio: {w.get('start_date') or 'N/D'} | Fine: {w.get('end_date') or 'N/D'}
   Progresso: {w.get('progress', 0)}% | Checklist: {done_count}/{checklist_count} voci completate
   Descrizione: {w.get('description') or 'N/D'}"""
 
