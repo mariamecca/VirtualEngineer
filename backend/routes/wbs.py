@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from models.database import get_db
 from models.wbs import WBS, WBSChecklist
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter()
 
@@ -27,7 +27,7 @@ class WBSUpdate(BaseModel):
     budget: Optional[float] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
-    progress: Optional[int] = None
+    progress: Optional[int] = Field(None, ge=0, le=100)
     order_index: Optional[int] = None
 
 
