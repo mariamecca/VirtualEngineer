@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 from models.database import get_db
 from models.report import Report
 from models.task import Task
@@ -55,7 +55,7 @@ def delete_report(report_id: int, db: Session = Depends(get_db)):
 class SnapshotRequest(BaseModel):
     project_id: int
     date: str
-    progress: int
+    progress: int = Field(..., ge=0, le=100)
 
     @field_validator("date")
     @classmethod
