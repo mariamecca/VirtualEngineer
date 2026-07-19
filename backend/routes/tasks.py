@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from models.database import get_db
 from models.task import Task
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Literal, Optional
 
 router = APIRouter()
@@ -14,6 +14,16 @@ class TaskCreate(BaseModel):
     category: Optional[str] = None
     priority: Literal["alta", "media", "bassa"] = "media"
     date: str
+
+    @field_validator("date")
+    @classmethod
+    def check_date(cls, v: str) -> str:
+        from datetime import datetime
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("La data deve essere nel formato YYYY-MM-DD")
+        return v
 
 class TaskUpdate(BaseModel):
     completed: Optional[bool] = None
