@@ -19,6 +19,7 @@ class ProjectCreate(BaseModel):
     current_phase: Optional[str] = None
 
 class ProjectUpdate(ProjectCreate):
+    name: Optional[str] = None
     progress: Optional[float] = None
 
 @router.get("/")
