@@ -63,8 +63,9 @@ def test_connection():
 def update_settings(data: SettingsUpdate):
     s = load_settings()
     if data.groq_api_key is not None:
-        os.environ["GROQ_API_KEY"] = data.groq_api_key
-        s["groq_api_key"] = data.groq_api_key
+        key = data.groq_api_key.strip()
+        os.environ["GROQ_API_KEY"] = key
+        s["groq_api_key"] = key
     if data.groq_model and data.groq_model in GROQ_MODELS:
         s["groq_model"] = data.groq_model
         os.environ["GROQ_MODEL"] = data.groq_model
