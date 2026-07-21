@@ -138,6 +138,8 @@ async def analyze_documents(files: List[UploadFileType] = UploadFileType(...)):
 @router.post("/optimizations")
 async def get_optimizations(req: OptimizationRequest, db: Session = Depends(get_db)):
     project = db.query(Project).filter(Project.id == req.project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Progetto non trovato")
     tasks = db.query(Task).filter(Task.project_id == req.project_id).all()
 
     ai = get_ai()
