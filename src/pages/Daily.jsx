@@ -402,8 +402,10 @@ export default function Daily() {
           <div className={`mb-4 p-3 rounded-xl border flex items-center gap-3 ${urgent ? 'bg-red-950/50 border-red-800' : 'bg-amber-950/30 border-amber-800'}`}>
             <CalendarDaysIcon className={`w-5 h-5 flex-shrink-0 ${urgent ? 'text-red-400' : 'text-amber-400'}`} />
             <p className={`text-sm font-medium ${urgent ? 'text-red-300' : 'text-amber-300'}`}>
-              {daysLeft <= 0
+              {daysLeft < 0
                 ? 'Scadenza cantiere superata!'
+                : daysLeft === 0
+                ? `Scadenza cantiere: oggi — ${currentProject.deadline}`
                 : `Scadenza cantiere tra ${daysLeft} ${daysLeft === 1 ? 'giorno' : 'giorni'} — ${currentProject.deadline}`}
             </p>
           </div>
