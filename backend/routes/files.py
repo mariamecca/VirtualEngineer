@@ -22,6 +22,16 @@ def safe_filename(filename: str) -> str:
         raise HTTPException(status_code=400, detail=f"Tipo di file non consentito: {ext}")
     return name
 
+def _unique_path(project_dir: str, filename: str) -> str:
+    base, ext = os.path.splitext(filename)
+    dest = os.path.join(project_dir, filename)
+    counter = 1
+    while os.path.exists(dest):
+        dest = os.path.join(project_dir, f"{base}_{counter}{ext}")
+        counter += 1
+    return dest
+
+
 @router.post("/upload/{project_id}")
 async def upload_files(project_id: int, files: List[UploadFileType] = UploadFileType(...), db: Session = Depends(get_db)):
     saved = []
@@ -29,11 +39,11 @@ async def upload_files(project_id: int, files: List[UploadFileType] = UploadFile
         filename = safe_filename(f.filename)
         project_dir = os.path.join(UPLOAD_DIR, str(project_id))
         os.makedirs(project_dir, exist_ok=True)
-        dest = os.path.join(project_dir, filename)
+        dest = _unique_path(project_dir, filename)
         with open(dest, "wb") as out:
             shutil.copyfileobj(f.file, out)
         size = os.path.getsize(dest)
-        db_file = File(project_id=project_id, name=filename, path=dest, type=f.content_type, size=size)
+        db_file = File(project_id=project_id, name=os.path.basename(dest), path=dest, type=f.content_type, size=size)
         db.add(db_file)
         saved.append(db_file)
     db.commit()
