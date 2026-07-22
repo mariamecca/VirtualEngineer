@@ -1,10 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+import os
 from models.database import get_db
 from models.project import Project
+from models.task import Task
+from models.report import Report
+from models.file import File
+from models.optimization import Optimization
+from models.chat_message import ChatMessage
+from models.wbs import WBS, WBSChecklist
+from models.progress_history import ProgressHistory
 from pydantic import BaseModel
-from typing import Optional
 
 router = APIRouter()
 
@@ -56,6 +63,19 @@ def update_project(project_id: int, data: ProjectUpdate, db: Session = Depends(g
 def delete_project(project_id: int, db: Session = Depends(get_db)):
     p = db.query(Project).filter(Project.id == project_id).first()
     if p:
+        wbs_ids = [w.id for w in db.query(WBS).filter(WBS.project_id == project_id).all()]
+        if wbs_ids:
+            db.query(WBSChecklist).filter(WBSChecklist.wbs_id.in_(wbs_ids)).delete(synchronize_session=False)
+        db.query(WBS).filter(WBS.project_id == project_id).delete()
+        db.query(Task).filter(Task.project_id == project_id).delete()
+        db.query(Report).filter(Report.project_id == project_id).delete()
+        db.query(ProgressHistory).filter(ProgressHistory.project_id == project_id).delete()
+        db.query(Optimization).filter(Optimization.project_id == project_id).delete()
+        db.query(ChatMessage).filter(ChatMessage.project_id == project_id).delete()
+        for f in db.query(File).filter(File.project_id == project_id).all():
+            if os.path.exists(f.path):
+                os.remove(f.path)
+        db.query(File).filter(File.project_id == project_id).delete()
         db.delete(p)
         db.commit()
     return {"ok": True}
