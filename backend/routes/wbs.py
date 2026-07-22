@@ -71,11 +71,18 @@ def checklist_to_dict(c: WBSChecklist):
 @router.get("/{project_id}")
 def get_wbs(project_id: int, db: Session = Depends(get_db)):
     items = db.query(WBS).filter(WBS.project_id == project_id).order_by(WBS.order_index, WBS.code).all()
+    checklist_map: dict = {}
+    if items:
+        wbs_ids = [w.id for w in items]
+        all_checklists = db.query(WBSChecklist).filter(
+            WBSChecklist.wbs_id.in_(wbs_ids)
+        ).order_by(WBSChecklist.created_at).all()
+        for c in all_checklists:
+            checklist_map.setdefault(c.wbs_id, []).append(c)
     result = []
     for w in items:
         d = wbs_to_dict(w)
-        checklist = db.query(WBSChecklist).filter(WBSChecklist.wbs_id == w.id).order_by(WBSChecklist.created_at).all()
-        d["checklist"] = [checklist_to_dict(c) for c in checklist]
+        d["checklist"] = [checklist_to_dict(c) for c in checklist_map.get(w.id, [])]
         result.append(d)
     return result
 
